@@ -1,0 +1,20 @@
+{
+  "name": "gpu-js-experiments",
+  "version": "0.0.1",
+  "description": "Playing around with gpu.js",
+  "main": "index.js",
+  "scripts": {},
+  "author": "Jonathan Taylor",
+  "license": "MIT",
+  "dependencies": {
+    "babel-loader": "^7.1.4",
+    "babel-preset-env": "^1.6.1",
+    "babel-register": "^6.26.0",
+    "eslint": "^4.18.2",
+    "express": "^4.16.2",
+    "gpu.js": "^1.0.6",
+    "html-webpack-plugin": "^3.0.6",
+    "webpack": "^3.11.0",
+    "webpack-dev-server": "^2.11.2"
+  }
+}
