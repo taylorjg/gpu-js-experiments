@@ -9,7 +9,7 @@ const P = {
 
 const PEGS = Object.values(P);
 
-export const pegToString = peg => {
+const pegToString = peg => {
   switch (peg) {
     case P.R: return "R";
     case P.G: return "G";
@@ -21,8 +21,8 @@ export const pegToString = peg => {
   }
 };
 
-export const codeToString = guess =>
-  guess.map(pegToString).join("-");
+export const codeToString = code =>
+  code.map(pegToString).join("-");
 
 export const ALL_COMBINATIONS =
   Array.from(function* () {
