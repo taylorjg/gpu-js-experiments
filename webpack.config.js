@@ -7,6 +7,7 @@ const serverPublic = path.join(__dirname, 'server', 'public');
 
 module.exports = {
     entry: [
+        'babel-polyfill',
         './client/index.js'
     ],
     output: {

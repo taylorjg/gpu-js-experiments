@@ -1,9 +1,13 @@
-import GPU from 'gpu.js';
+import GPU from "gpu.js";
+import { runAutoSolve } from "./mastermindWithoutGpu";
+
 const gpu = new GPU();
 
-const myFunc = gpu.createKernel(function(x) {
+const myFunc = gpu.createKernel(function (x) {
   return x[this.thread.x % 3];
 }).setOutput([100]);
 
 const result = myFunc([1, 2, 3]);
 console.log(`result: ${JSON.stringify(result)}`);
+
+runAutoSolve();
