@@ -2,27 +2,23 @@ import {
   ALL_CODES,
   ALL_SCORES,
   INITIAL_GUESS,
-  generateRandomCode,
   evaluateGuess,
   evaluatesToSameFeedback,
   codeToString,
   countWithPredicate
 } from "./mastermindCommon";
 
-const autosolve = attempt =>
-  autosolve2(attempt, ALL_CODES, []);
-
-const autosolve2 = (attempt, set, acc) => {
-  console.log(`set length: ${set.length}`);
+const autosolve = (attempt, set, acc) => {
+  console.log(`[mastermindWithoutGpu] set length: ${set.length}`);
   const guess = acc.length === 0 ? INITIAL_GUESS :
     set.length === 1 ? set[0] : calculateNewGuess(set);
-  console.log(`generated guess: ${codeToString(guess)}`);
+  console.log(`[mastermindWithoutGpu] generated guess: ${codeToString(guess)}`);
   const score = attempt(guess);
-  console.log(`score: ${JSON.stringify(score)}`);
+  console.log(`[mastermindWithoutGpu] score: ${JSON.stringify(score)}`);
   const updatedAcc = [...acc, [guess, score]];
   if (score.blacks === 4) return updatedAcc;
   const updatedSet = set.filter(evaluatesToSameFeedback(guess, score));
-  return autosolve2(attempt, updatedSet, updatedAcc);
+  return autosolve(attempt, updatedSet, updatedAcc);
 };
 
 const calculateNewGuess = set => {
@@ -36,9 +32,8 @@ const calculateNewGuess = set => {
   return best.guess;
 };
 
-export const runWithoutGpuAutoSolve = () => {
-  const secret = generateRandomCode();
-  console.log(`secret: ${codeToString(secret)}`);
-  const guesses = autosolve(guess => evaluateGuess(secret, guess));
-  console.log(`numAttempts: ${guesses.length}`);
+export const mastermindWithoutGpu = secret => {
+  console.log(`[mastermindWithoutGpu] secret: ${codeToString(secret)}`);
+  const guesses = autosolve(guess => evaluateGuess(secret, guess), ALL_CODES, []);
+  console.log(`[mastermindWithoutGpu] numAttempts: ${guesses.length}`);
 };

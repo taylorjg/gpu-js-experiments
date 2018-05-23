@@ -1,7 +1,10 @@
 import { runBasicExample } from "./basicExample";
-import { runWithoutGpuAutoSolve } from "./mastermindWithoutGpu";
-import { runWithGpuAutoSolve } from "./mastermindWithGpu";
+import { generateRandomCode } from "./mastermindCommon";
+import { mastermindWithoutGpu } from "./mastermindWithoutGpu";
+import { mastermindWithGpu } from "./mastermindWithGpu";
 
 runBasicExample();
-runWithoutGpuAutoSolve();
-runWithGpuAutoSolve();
+
+const secret = generateRandomCode();
+mastermindWithoutGpu(secret);
+mastermindWithGpu(secret);
