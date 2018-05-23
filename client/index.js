@@ -1,5 +1,7 @@
 import { runBasicExample } from "./basicExample";
-import { runAutoSolve } from "./mastermindWithoutGpu";
+import { runWithoutGpuAutoSolve } from "./mastermindWithoutGpu";
+import { runWithGpuAutoSolve } from "./mastermindWithGpu";
 
 runBasicExample();
-runAutoSolve();
+runWithoutGpuAutoSolve();
+runWithGpuAutoSolve();

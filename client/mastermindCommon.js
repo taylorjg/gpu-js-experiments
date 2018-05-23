@@ -7,7 +7,7 @@ const P = {
   WH: Symbol('white')
 };
 
-const PEGS = Object.values(P);
+const ALL_PEGS = Object.values(P);
 
 const pegToString = peg => {
   switch (peg) {
@@ -24,36 +24,35 @@ const pegToString = peg => {
 export const codeToString = code =>
   code.map(pegToString).join("-");
 
-export const ALL_COMBINATIONS =
+export const ALL_CODES =
   Array.from(function* () {
-    for (const a of PEGS)
-      for (const b of PEGS)
-        for (const c of PEGS)
-          for (const d of PEGS)
+    for (const a of ALL_PEGS)
+      for (const b of ALL_PEGS)
+        for (const c of ALL_PEGS)
+          for (const d of ALL_PEGS)
             yield [a, b, c, d];
   }());
 
-export const ALL_OUTCOMES =
+export const range = n =>
+  Array.from(Array(n).keys());
+
+export const ALL_SCORES =
   Array.from(function* () {
-    for (const blacks of [0, 1, 2, 3, 4])
-      for (const whites of [0, 1, 2, 3, 4])
+    for (const blacks of range(5))
+      for (const whites of range(5 - blacks))
         yield { blacks, whites };
   }())
-    .filter(fb => fb.blacks + fb.whites <= 4)
     .filter(fb => !(fb.blacks === 3 && fb.whites === 1));
 
 export const INITIAL_GUESS = [P.R, P.R, P.G, P.G];
-
-export const range = n =>
-  Array.from(Array(n).keys());
 
 export const countWithPredicate = (xs, p) =>
   xs.reduce((acc, x) => acc + (p(x) ? 1 : 0), 0);
 
 export const generateRandomCode = () => {
   const chooseRandomPeg = () => {
-    const randomIndex = Math.floor((Math.random() * PEGS.length));
-    return PEGS[randomIndex];
+    const randomIndex = Math.floor((Math.random() * ALL_PEGS.length));
+    return ALL_PEGS[randomIndex];
   };
   return range(4).map(chooseRandomPeg);
 };
@@ -61,7 +60,7 @@ export const generateRandomCode = () => {
 export const evaluateGuess = (secret, guess) => {
   const count = (xs, p) => xs.filter(x => x === p).length;
   const add = (a, b) => a + b;
-  const sum = PEGS.map(p => Math.min(count(secret, p), count(guess, p))).reduce(add);
+  const sum = ALL_PEGS.map(p => Math.min(count(secret, p), count(guess, p))).reduce(add);
   const blacks = secret.filter((peg, index) => peg === guess[index]).length;
   const whites = sum - blacks;
   return { blacks, whites };
@@ -73,5 +72,3 @@ export const sameFeedback = (fb1, fb2) =>
 
 export const evaluatesToSameFeedback = (code1, feedback) => code2 =>
   sameFeedback(evaluateGuess(code1, code2), feedback);
-
-export const sameGuessAs = g1 => g2 => g1.every((p, i) => p === g2[i]);
