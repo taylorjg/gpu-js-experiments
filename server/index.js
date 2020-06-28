@@ -1,10 +1,12 @@
-const path = require('path');
-const express = require('express');
+/* eslint-env node */
 
-const port = process.env.PORT || 3000;
-const publicFolder = path.join(__dirname, 'public');
+const path = require('path')
+const express = require('express')
 
-const app = express();
-app.use('/', express.static(publicFolder));
+const PORT = process.env.PORT || 3020
+const PUBLIC_FOLDER = path.join(__dirname, 'public')
 
-app.listen(port, () => console.log(`Listening on port ${port}`));
+const app = express()
+app.use(express.static(PUBLIC_FOLDER))
+
+app.listen(PORT, () => console.log(`Listening on http://localhost:${PORT}`))

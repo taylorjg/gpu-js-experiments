@@ -1,35 +1,24 @@
 /* eslint-env node */
 
-const HtmlWebpackPlugin = require('html-webpack-plugin');
-const path = require('path');
+const HtmlWebpackPlugin = require('html-webpack-plugin')
+const path = require('path')
 
-const serverPublic = path.join(__dirname, 'server', 'public');
+const SERVER_PUBLIC = path.join(__dirname, 'server', 'public')
 
 module.exports = {
-    entry: [
-        'babel-polyfill',
-        './client/index.js'
-    ],
-    output: {
-        path: serverPublic,
-        filename: 'bundle.js',
-    },
-    plugins: [
-        new HtmlWebpackPlugin({
-            template: './client/index.html'
-        })
-    ],
-    module: {
-        rules: [
-            {
-                test: /\.(js)$/,
-                exclude: /node_modules/,
-                use: 'babel-loader'
-            }
-        ]
-    },
-    devtool: 'source-map',
-    devServer: {
-        contentBase: serverPublic
-    }
-};
+  mode: 'development',
+  entry: './src/index.js',
+  output: {
+    path: SERVER_PUBLIC,
+    filename: 'bundle.js',
+  },
+  plugins: [
+    new HtmlWebpackPlugin({
+      template: './src/index.html'
+    })
+  ],
+  devtool: 'source-map',
+  devServer: {
+    contentBase: SERVER_PUBLIC
+  }
+}
