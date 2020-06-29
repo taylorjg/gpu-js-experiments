@@ -1,4 +1,4 @@
-const P = {
+export const P = {
   R: Symbol('red'),
   G: Symbol('green'),
   B: Symbol('blue'),

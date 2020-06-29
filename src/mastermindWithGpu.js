@@ -1,3 +1,13 @@
+import {
+  P,
+  ALL_CODES,
+  INITIAL_GUESS,
+  evaluateScore,
+  evaluatesToSameScore,
+  codeToString,
+  scoreToString,
+} from './mastermindCommon'
+
 import { GPU } from 'gpu.js'
 const gpu = new GPU()
 
@@ -8,19 +18,7 @@ const yellow = 3
 const black = 4
 const white = 5
 
-const allPegs = [red, green, blue, yellow, black, white]
-
-const pegToString = peg => {
-  switch (peg) {
-    case red: return 'R'
-    case green: return 'G'
-    case blue: return 'B'
-    case yellow: return 'Y'
-    case black: return 'b'
-    case white: return 'w'
-    default: return '?'
-  }
-}
+const allPegsInterop = [red, green, blue, yellow, black, white]
 
 function encodeScore(blacks, whites) {
   return blacks | (whites << 8)
@@ -32,7 +30,7 @@ function decodeScore(encoded) {
   return [blacks, whites]
 }
 
-const allScores = [
+const allScoresInterop = [
   encodeScore(0, 0),
   encodeScore(0, 1),
   encodeScore(0, 2),
@@ -48,15 +46,6 @@ const allScores = [
   encodeScore(3, 0),
   encodeScore(4, 0),
 ]
-
-function codeToString(code) {
-  const [a, b, c, d] = code
-  const p0 = pegToString(a)
-  const p1 = pegToString(b)
-  const p2 = pegToString(c)
-  const p3 = pegToString(d)
-  return `${p0}-${p1}-${p2}-${p3}`
-}
 
 function allCodeFromIndex(allPegs, index) {
   const p0 = allPegs[Math.trunc(index / 216) % 6]
@@ -92,7 +81,7 @@ function countPegs(peg, code) {
   )
 }
 
-function evaluateScore(allPegs, code1, code2) {
+function evaluateScoreGpu(allPegs, code1, code2) {
   let sumOfMins = 0
   for (let i = 0; i < 6; i++) {
     const peg = allPegs[i]
@@ -116,7 +105,7 @@ function findBest(allPegs, allScores, allCode, untried, untriedCount) {
     let count = 0
     for (let j = 0; j < untriedCount; j++) {
       const untriedCode = decodeCode(untried[j])
-      const [blacks2, whites2] = evaluateScore(allPegs, allCode, untriedCode)
+      const [blacks2, whites2] = evaluateScoreGpu(allPegs, allCode, untriedCode)
       if (blacks1 === blacks2 && whites1 === whites2) count++
     }
     maxCount = Math.max(maxCount, count)
@@ -129,7 +118,7 @@ gpu.addFunction(encodeCode)
 gpu.addFunction(decodeCode)
 gpu.addFunction(decodeScore)
 gpu.addFunction(countPegs)
-gpu.addFunction(evaluateScore)
+gpu.addFunction(evaluateScoreGpu)
 gpu.addFunction(findBest)
 
 function kernelEntryPoint(allPegs, allScores, untried, untriedCount) {
@@ -148,8 +137,74 @@ const settings = {
 
 const kernel = gpu.createKernel(kernelEntryPoint, settings)
 
-export const mastermindWithGpu = () => {
-  const untried = [encodeCode([5, 5, 5, 5])]
-  const results = kernel(allPegs, allScores, untried, untried.length)
-  results.forEach(code => console.log(code))
+const pegSymbolToInt = peg => {
+  switch (peg) {
+    case P.R: return red
+    case P.G: return green
+    case P.B: return blue
+    case P.Y: return yellow
+    case P.BL: return black
+    case P.WH: return white
+    default: throw new Error('Unknown peg')
+  }
+}
+
+const pegIntToSymbol = peg => {
+  switch (peg) {
+    case red: return P.R
+    case green: return P.G
+    case blue: return P.B
+    case yellow: return P.Y
+    case black: return P.BL
+    case white: return P.WH
+    default: throw new Error('Unknown peg')
+  }
+}
+
+const encodeCodeInterop = code => {
+  const [p0, p1, p2, p3] = code
+  return encodeCode([
+    pegSymbolToInt(p0),
+    pegSymbolToInt(p1),
+    pegSymbolToInt(p2),
+    pegSymbolToInt(p3)
+  ])
+}
+
+const decodeCodeInterop = encoded => {
+  const [p0, p1, p2, p3] = decodeCode(encoded)
+  return [
+    pegIntToSymbol(p0),
+    pegIntToSymbol(p1),
+    pegIntToSymbol(p2),
+    pegIntToSymbol(p3)
+  ]
+}
+
+const calculateNewGuess = untried => {
+  const untriedInterop = untried.map(encodeCodeInterop)
+  const bests = kernel(allPegsInterop, allScoresInterop, untriedInterop, untriedInterop.length)
+  const best = bests.reduce(
+    (acc, b) => b[0] < acc[0] ? b : acc,
+    [Number.MAX_SAFE_INTEGER, undefined])
+  return decodeCodeInterop(best[1])
+}
+
+const solve = (attempt, untried = ALL_CODES, history = []) => {
+  console.log(`[mastermindWithGpu solve] untried length: ${untried.length}`)
+  const guess = history.length === 0 ? INITIAL_GUESS :
+    untried.length === 1 ? untried[0] : calculateNewGuess(untried)
+  const score = attempt(guess)
+  console.log(`[mastermindWithGpu solve] guess: ${codeToString(guess)}; score: ${scoreToString(score)}`)
+  const newHistory = [...history, { guess, score }]
+  if (score.blacks === 4) return newHistory
+  const newUntried = untried.filter(evaluatesToSameScore(guess, score))
+  return solve(attempt, newUntried, newHistory)
+}
+
+export const mastermindWithGpu = secret => {
+  console.log(`[mastermindWithGpu] secret: ${codeToString(secret)}`)
+  const attempt = guess => evaluateScore(secret, guess)
+  const history = solve(attempt)
+  console.log(`[mastermindWithGpu] numAttempts: ${history.length}`)
 }

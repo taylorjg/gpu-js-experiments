@@ -28,7 +28,7 @@ const solve = (attempt, untried = ALL_CODES, history = []) => {
   const guess = history.length === 0 ? INITIAL_GUESS :
     untried.length === 1 ? untried[0] : calculateNewGuess(untried)
   const score = attempt(guess)
-  console.log(`[mastermindWithGpu solve] guess: ${codeToString(guess)}; score: ${scoreToString(score)}`)
+  console.log(`[mastermindWithoutGpu solve] guess: ${codeToString(guess)}; score: ${scoreToString(score)}`)
   const newHistory = [...history, { guess, score }]
   if (score.blacks === 4) return newHistory
   const newUntried = untried.filter(evaluatesToSameScore(guess, score))
