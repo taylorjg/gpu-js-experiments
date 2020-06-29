@@ -45,7 +45,7 @@ export const ALL_SCORES =
       for (const whites of range(5 - blacks))
         yield { blacks, whites }
   }())
-    .filter(score => !(score.blacks + score.whites > 4))
+    .filter(score => score.blacks + score.whites <= 4)
     .filter(score => !(score.blacks === 3 && score.whites === 1))
 
 export const INITIAL_GUESS = [P.R, P.R, P.G, P.G]
