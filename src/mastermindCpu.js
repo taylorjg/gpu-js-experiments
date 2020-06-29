@@ -24,20 +24,20 @@ const calculateNewGuess = untried => {
 }
 
 const solve = (attempt, untried = ALL_CODES, history = []) => {
-  console.log(`[mastermindWithoutGpu solve] untried length: ${untried.length}`)
+  console.log(`[mastermindCpu solve] untried length: ${untried.length}`)
   const guess = history.length === 0 ? INITIAL_GUESS :
     untried.length === 1 ? untried[0] : calculateNewGuess(untried)
   const score = attempt(guess)
-  console.log(`[mastermindWithoutGpu solve] guess: ${codeToString(guess)}; score: ${scoreToString(score)}`)
+  console.log(`[mastermindCpu solve] guess: ${codeToString(guess)}; score: ${scoreToString(score)}`)
   const newHistory = [...history, { guess, score }]
   if (score.blacks === 4) return newHistory
   const newUntried = untried.filter(evaluatesToSameScore(guess, score))
   return solve(attempt, newUntried, newHistory)
 }
 
-export const mastermindWithoutGpu = secret => {
-  console.log(`[mastermindWithoutGpu] secret: ${codeToString(secret)}`)
+export const mastermindCpu = secret => {
+  console.log(`[mastermindCpu] secret: ${codeToString(secret)}`)
   const attempt = guess => evaluateScore(secret, guess)
   const history = solve(attempt)
-  console.log(`[mastermindWithoutGpu] numAttempts: ${history.length}`)
+  console.log(`[mastermindCpu] numAttempts: ${history.length}`)
 }
