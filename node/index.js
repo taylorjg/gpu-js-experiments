@@ -57,15 +57,49 @@ function decodeCode(encoded) {
   return [p0, p1, p2, p3]
 }
 
+function countPegs(peg, code) {
+  const [p0, p1, p2, p3] = code
+  return (
+    (p0 === peg ? 1 : 0) +
+    (p1 === peg ? 1 : 0) +
+    (p2 === peg ? 1 : 0) +
+    (p3 === peg ? 1 : 0)
+  )
+}
+
+// score_t evaluateScore(thread const code_t& code1, thread const code_t& code2)
+// {
+//     uint8_t blacks = 0;
+//     if (code1.p0 == code2.p0) blacks++;
+//     if (code1.p1 == code2.p1) blacks++;
+//     if (code1.p2 == code2.p2) blacks++;
+//     if (code1.p3 == code2.p3) blacks++;
+//     uint8_t whites = sumOfMins - blacks;
+//     return score_t { blacks, whites };
+// }
+function evaluateScore(allPegs, code1, code2) {
+  let sumOfMins = 0
+  for (let i = 0; i < 4; i++) {
+    const peg = allPegs[i]
+    const numMatchingCode1Pegs = countPegs(peg, code1)
+    const numMatchingCode2Pegs = countPegs(peg, code2)
+    sumOfMins += Math.min(numMatchingCode1Pegs, numMatchingCode2Pegs)
+  }
+  return sumOfMins
+}
+
 gpu.addFunction(allCodeFromIndex)
 gpu.addFunction(encodeCode)
 gpu.addFunction(decodeCode)
+// gpu.addFunction(countPegs)
 // gpu.addFunction(evaluateScore)
 // gpu.addFunction(findBest)
 
 function kernelEntryPoint(allPegs) {
-  const index = this.thread.x
-  return encodeCode(allCodeFromIndex(allPegs, index))
+  // const index = this.thread.x
+  const code1 = [allPegs[0], allPegs[2], allPegs[2], allPegs[3]]
+  return encodeCode(code1)
+  // return encodeCode(allCodeFromIndex(allPegs, index))
 }
 
 const settings = {
