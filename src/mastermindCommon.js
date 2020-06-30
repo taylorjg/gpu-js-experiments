@@ -90,5 +90,9 @@ const recursiveSolveStep = (attempt, calculateNewGuess, untried, history) => {
 }
 
 export const solve = (attempt, calculateNewGuess) => {
-  return recursiveSolveStep(attempt, calculateNewGuess, ALL_CODES, [])
+  const start = performance.now()
+  const history = recursiveSolveStep(attempt, calculateNewGuess, ALL_CODES, [])
+  const end = performance.now()
+  console.log(`[solve] duration: ${(end - start).toFixed(2)}ms`)
+  return history
 }
