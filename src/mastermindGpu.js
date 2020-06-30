@@ -5,7 +5,6 @@ import {
   codeToString,
   solve
 } from './mastermindCommon'
-import * as U from './utils'
 
 import { GPU } from 'gpu.js'
 const gpu = new GPU()
@@ -110,8 +109,7 @@ const calculateNewGuess = untried => {
   return decodeCode(overallBest[1])
 }
 
-export const mastermindGpu = (secret, outputElement) => {
-  const logger = U.makeLogger(outputElement)
+export const mastermindGpu = (secret, logger) => {
   logger(`[mastermindGpu] secret: ${codeToString(secret)}`)
   const attempt = guess => evaluateScore(secret, guess)
   const history = solve(logger, attempt, calculateNewGuess)

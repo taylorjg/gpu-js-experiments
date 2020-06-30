@@ -1,19 +1,24 @@
+import { GPU } from 'gpu.js'
 import { generateRandomCode } from './mastermindCommon'
 import { mastermindCpu } from './mastermindCpu'
 import { mastermindGpu } from './mastermindGpu'
 import * as U from './utils'
 
-const onRun = () => {
+const onRun = loggers => {
   runElement.disabled = true
   cpuOutputElement.innerText = ''
   gpuOutputElement.innerText = ''
   U.deferFor(10, () => {
     try {
       const secret = generateRandomCode()
-      mastermindCpu(secret, cpuOutputElement)
-      mastermindGpu(secret, gpuOutputElement)
+      mastermindCpu(secret, loggers.cpuLogger)
+      mastermindGpu(secret, loggers.gpuLogger)
     } catch (error) {
-      console.log(error)
+      if (error.stack) {
+        loggers.sysLogger(error.stack)
+      } else {
+        loggers.sysLogger(error)
+      }
     } finally {
       U.defer(() => { runElement.disabled = false })
     }
@@ -22,7 +27,19 @@ const onRun = () => {
 
 const cpuOutputElement = document.getElementById('cpu-output')
 const gpuOutputElement = document.getElementById('gpu-output')
-const runElement = document.getElementById('run')
-runElement.addEventListener('click', onRun)
+const sysOutputElement = document.getElementById('sys-output')
 
-onRun()
+const loggers = {
+  cpuLogger: U.makeLogger(cpuOutputElement),
+  gpuLogger: U.makeLogger(gpuOutputElement),
+  sysLogger: U.makeLogger(sysOutputElement)
+}
+
+const runElement = document.getElementById('run')
+runElement.addEventListener('click', () => onRun(loggers))
+
+loggers.sysLogger(`GPU.isGPUSupported: ${GPU.isGPUSupported}`)
+loggers.sysLogger(`GPU.isWebGLSupported: ${GPU.isWebGLSupported}`)
+loggers.sysLogger(`GPU.isWebGL2Supported: ${GPU.isWebGL2Supported}`)
+
+onRun(loggers)
