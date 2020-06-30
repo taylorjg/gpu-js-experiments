@@ -5,6 +5,7 @@ import {
   codeToString,
   solve
 } from './mastermindCommon'
+import * as U from './utils'
 
 import { GPU } from 'gpu.js'
 const gpu = new GPU()
@@ -93,7 +94,8 @@ function kernelEntryPoint(allPegs, allScores, untried, untriedCount) {
 }
 
 const settings = {
-  output: [1296]
+  output: [1296],
+  dynamicArguments: true
 }
 
 const kernel = gpu.createKernel(kernelEntryPoint, settings)
@@ -108,9 +110,10 @@ const calculateNewGuess = untried => {
   return decodeCode(overallBest[1])
 }
 
-export const mastermindGpu = secret => {
-  console.log(`[mastermindGpu] secret: ${codeToString(secret)}`)
+export const mastermindGpu = (secret, outputElement) => {
+  const logger = U.makeLogger(outputElement)
+  logger(`[mastermindGpu] secret: ${codeToString(secret)}`)
   const attempt = guess => evaluateScore(secret, guess)
-  const history = solve(attempt, calculateNewGuess)
-  console.log(`[mastermindGpu] numAttempts: ${history.length}`)
+  const history = solve(logger, attempt, calculateNewGuess)
+  logger(`[mastermindGpu] numAttempts: ${history.length}`)
 }

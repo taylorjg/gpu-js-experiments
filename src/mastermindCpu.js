@@ -22,9 +22,10 @@ const calculateNewGuess = untried => {
   return best.guess
 }
 
-export const mastermindCpu = secret => {
-  console.log(`[mastermindCpu] secret: ${codeToString(secret)}`)
+export const mastermindCpu = (secret, outputElement) => {
+  const logger = U.makeLogger(outputElement)
+  logger(`[mastermindCpu] secret: ${codeToString(secret)}`)
   const attempt = guess => evaluateScore(secret, guess)
-  const history = solve(attempt, calculateNewGuess)
-  console.log(`[mastermindCpu] numAttempts: ${history.length}`)
+  const history = solve(logger, attempt, calculateNewGuess)
+  logger(`[mastermindCpu] numAttempts: ${history.length}`)
 }
