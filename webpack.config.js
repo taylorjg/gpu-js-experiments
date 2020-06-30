@@ -2,6 +2,7 @@
 
 const HtmlWebpackPlugin = require('html-webpack-plugin')
 const path = require('path')
+const { version } = require('./package.json')
 
 const SERVER_PUBLIC = path.join(__dirname, 'server', 'public')
 
@@ -14,7 +15,8 @@ module.exports = {
   },
   plugins: [
     new HtmlWebpackPlugin({
-      template: './src/index.html'
+      template: './src/index.html',
+      version
     })
   ],
   devtool: 'source-map',

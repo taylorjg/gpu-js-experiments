@@ -2,19 +2,23 @@
 <html>
 
 <head>
-    <title>Experiments with gpu.js</title>
+  <title>Experiments with gpu.js</title>
 </head>
 
 <body>
-    <div style="width: 50%; margin-left: auto; margin-right: auto;">
-        <span>CPU:</span>
-        <pre id="cpu-output" style="height: 250px; background-color: lightgrey; overflow-y: scroll;"></pre>
-        <hr>
-        <span>GPU:</span>
-        <pre id="gpu-output" style="height: 250px; background-color: lightgrey; overflow-y: scroll;"></pre>
-        <hr>
-        <button id="run">Run</button>
+  <div style="width: 50%; margin-left: auto; margin-right: auto;">
+    <div style="text-align: right; font-size: small; font-style: italic;">
+      version: <%= htmlWebpackPlugin.options.version %>
     </div>
+    <hr>
+    <span>CPU:</span>
+    <pre id="cpu-output" style="height: 250px; background-color: lightgrey; overflow-y: scroll;"></pre>
+    <hr>
+    <span>GPU:</span>
+    <pre id="gpu-output" style="height: 250px; background-color: lightgrey; overflow-y: scroll;"></pre>
+    <hr>
+    <button id="run">Run</button>
+  </div>
 </body>
 
 </html>
