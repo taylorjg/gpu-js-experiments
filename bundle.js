@@ -19582,6 +19582,7 @@ const onRun = loggers => {
       Object(_mastermindCpu__WEBPACK_IMPORTED_MODULE_2__["mastermindCpu"])(secret, loggers.cpuLogger)
       Object(_mastermindGpu__WEBPACK_IMPORTED_MODULE_3__["mastermindGpu"])(secret, loggers.gpuLogger)
     } catch (error) {
+      sysOutputElement.innerText = ''
       loggers.sysLogger(error)
       if (error.stack) {
         loggers.sysLogger(error.stack)
@@ -19608,6 +19609,7 @@ runElement.addEventListener('click', () => onRun(loggers))
 loggers.sysLogger(`GPU.isGPUSupported: ${gpu_js__WEBPACK_IMPORTED_MODULE_0__["GPU"].isGPUSupported}`)
 loggers.sysLogger(`GPU.isWebGLSupported: ${gpu_js__WEBPACK_IMPORTED_MODULE_0__["GPU"].isWebGLSupported}`)
 loggers.sysLogger(`GPU.isWebGL2Supported: ${gpu_js__WEBPACK_IMPORTED_MODULE_0__["GPU"].isWebGL2Supported}`)
+loggers.sysLogger(`GPU.isSinglePrecisionSupported: ${gpu_js__WEBPACK_IMPORTED_MODULE_0__["GPU"].isSinglePrecisionSupported}`)
 
 onRun(loggers)
 
