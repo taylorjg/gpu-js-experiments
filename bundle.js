@@ -19582,10 +19582,9 @@ const onRun = loggers => {
       Object(_mastermindCpu__WEBPACK_IMPORTED_MODULE_2__["mastermindCpu"])(secret, loggers.cpuLogger)
       Object(_mastermindGpu__WEBPACK_IMPORTED_MODULE_3__["mastermindGpu"])(secret, loggers.gpuLogger)
     } catch (error) {
+      loggers.sysLogger(error)
       if (error.stack) {
         loggers.sysLogger(error.stack)
-      } else {
-        loggers.sysLogger(error)
       }
     } finally {
       _utils__WEBPACK_IMPORTED_MODULE_4__["defer"](() => { runElement.disabled = false })
