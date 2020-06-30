@@ -14,10 +14,9 @@ const onRun = loggers => {
       mastermindCpu(secret, loggers.cpuLogger)
       mastermindGpu(secret, loggers.gpuLogger)
     } catch (error) {
+      loggers.sysLogger(error)
       if (error.stack) {
         loggers.sysLogger(error.stack)
-      } else {
-        loggers.sysLogger(error)
       }
     } finally {
       U.defer(() => { runElement.disabled = false })
