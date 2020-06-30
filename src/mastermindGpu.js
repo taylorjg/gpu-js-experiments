@@ -1,5 +1,6 @@
 import {
   ALL_PEGS,
+  ALL_SCORES,
   evaluateScore,
   codeToString,
   solve
@@ -7,33 +8,6 @@ import {
 
 import { GPU } from 'gpu.js'
 const gpu = new GPU()
-
-function encodeScore(blacks, whites) {
-  return blacks | (whites << 8)
-}
-
-function decodeScore(encoded) {
-  const blacks = encoded & 0x00ff
-  const whites = (encoded & 0xff00) >> 8
-  return [blacks, whites]
-}
-
-const allScoresInterop = [
-  encodeScore(0, 0),
-  encodeScore(0, 1),
-  encodeScore(0, 2),
-  encodeScore(0, 3),
-  encodeScore(0, 4),
-  encodeScore(1, 0),
-  encodeScore(1, 1),
-  encodeScore(1, 2),
-  encodeScore(1, 3),
-  encodeScore(2, 0),
-  encodeScore(2, 1),
-  encodeScore(2, 2),
-  encodeScore(3, 0),
-  encodeScore(4, 0),
-]
 
 function encodeCode(code) {
   const p0 = code[0]
@@ -89,7 +63,7 @@ function evaluateScoreGpu(allPegs, code1, code2) {
 function findBest(allPegs, allScores, allCode, untried, untriedCount) {
   let maxCount = 0
   for (let i = 0; i < 14; i++) {
-    const [blacks1, whites1] = decodeScore(allScores[i])
+    const [blacks1, whites1] = allScores[i]
     let count = 0
     for (let j = 0; j < untriedCount; j++) {
       const untriedCode = decodeCode(untried[j])
@@ -101,10 +75,9 @@ function findBest(allPegs, allScores, allCode, untried, untriedCount) {
   return [maxCount, encodeCode(allCode)]
 }
 
-gpu.addFunction(allCodeFromIndex)
 gpu.addFunction(encodeCode)
 gpu.addFunction(decodeCode)
-gpu.addFunction(decodeScore)
+gpu.addFunction(allCodeFromIndex)
 gpu.addFunction(countPegs)
 gpu.addFunction(evaluateScoreGpu)
 gpu.addFunction(findBest)
@@ -127,7 +100,8 @@ const kernel = gpu.createKernel(kernelEntryPoint, settings)
 
 const calculateNewGuess = untried => {
   const untriedInterop = untried.map(encodeCode)
-  const bests = kernel(ALL_PEGS, allScoresInterop, untriedInterop, untriedInterop.length)
+  const allScores = ALL_SCORES.map(({ blacks, whites }) => [blacks, whites])
+  const bests = kernel(ALL_PEGS, allScores, untriedInterop, untriedInterop.length)
   const overallBest = bests.reduce(
     (currentBest, best) => best[0] < currentBest[0] ? best : currentBest,
     [Number.MAX_SAFE_INTEGER, undefined])
