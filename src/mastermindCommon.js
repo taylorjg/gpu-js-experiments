@@ -1,13 +1,33 @@
+import * as U from './utils'
+
 export const P = {
-  R: Symbol('red'),
-  G: Symbol('green'),
-  B: Symbol('blue'),
-  Y: Symbol('yellow'),
-  BL: Symbol('black'),
-  WH: Symbol('white')
+  R: 0,
+  G: 1,
+  B: 2,
+  Y: 3,
+  BL: 4,
+  WH: 5
 }
 
-const ALL_PEGS = Object.values(P)
+export const ALL_PEGS = Object.values(P)
+
+export const ALL_CODES =
+  Array.from(function* () {
+    for (const p0 of ALL_PEGS)
+      for (const p1 of ALL_PEGS)
+        for (const p2 of ALL_PEGS)
+          for (const p3 of ALL_PEGS)
+            yield [p0, p1, p2, p3]
+  }())
+
+export const ALL_SCORES =
+  Array.from(function* () {
+    for (const blacks of U.range(5))
+      for (const whites of U.range(5 - blacks))
+        yield { blacks, whites }
+  }())
+    .filter(score => score.blacks + score.whites <= 4)
+    .filter(score => !(score.blacks === 3 && score.whites === 1))
 
 const pegToString = peg => {
   switch (peg) {
@@ -27,45 +47,21 @@ export const codeToString = code =>
 export const scoreToString = score =>
   'B'.repeat(score.blacks) + 'W'.repeat(score.whites)
 
-export const ALL_CODES =
-  Array.from(function* () {
-    for (const p0 of ALL_PEGS)
-      for (const p1 of ALL_PEGS)
-        for (const p2 of ALL_PEGS)
-          for (const p3 of ALL_PEGS)
-            yield [p0, p1, p2, p3]
-  }())
-
-export const range = n =>
-  Array.from(Array(n).keys())
-
-export const ALL_SCORES =
-  Array.from(function* () {
-    for (const blacks of range(5))
-      for (const whites of range(5 - blacks))
-        yield { blacks, whites }
-  }())
-    .filter(score => score.blacks + score.whites <= 4)
-    .filter(score => !(score.blacks === 3 && score.whites === 1))
-
 export const INITIAL_GUESS = [P.R, P.R, P.G, P.G]
-
-export const countWithPredicate = (xs, p) =>
-  xs.reduce((acc, x) => acc + (p(x) ? 1 : 0), 0)
 
 export const generateRandomCode = () => {
   const chooseRandomPeg = () => {
     const randomIndex = Math.floor((Math.random() * ALL_PEGS.length))
     return ALL_PEGS[randomIndex]
   }
-  return range(4).map(chooseRandomPeg)
+  return U.range(4).map(chooseRandomPeg)
 }
 
 export const evaluateScore = (code1, code2) => {
   const add = (a, b) => a + b
   const mins = ALL_PEGS.map(peg => {
-    const count1 = countWithPredicate(code1, codePeg => codePeg === peg)
-    const count2 = countWithPredicate(code2, codePeg => codePeg === peg)
+    const count1 = U.countWithPredicate(code1, codePeg => codePeg === peg)
+    const count2 = U.countWithPredicate(code2, codePeg => codePeg === peg)
     return Math.min(count1, count2)
   })
   const sumOfMins = mins.reduce(add)
@@ -80,3 +76,19 @@ export const sameScore = (score1, score2) =>
 
 export const evaluatesToSameScore = (code1, score) => code2 =>
   sameScore(evaluateScore(code1, code2), score)
+
+const recursiveSolveStep = (attempt, calculateNewGuess, untried, history) => {
+  console.log(`[recursiveSolveStep] untried length: ${untried.length}`)
+  const guess = history.length === 0 ? INITIAL_GUESS :
+    untried.length === 1 ? untried[0] : calculateNewGuess(untried)
+  const score = attempt(guess)
+  console.log(`[recursiveSolveStep] guess: ${codeToString(guess)}; score: ${scoreToString(score)}`)
+  const newHistory = [...history, { guess, score }]
+  if (score.blacks === 4) return newHistory
+  const newUntried = untried.filter(evaluatesToSameScore(guess, score))
+  return recursiveSolveStep(attempt, calculateNewGuess, newUntried, newHistory)
+}
+
+export const solve = (attempt, calculateNewGuess) => {
+  return recursiveSolveStep(attempt, calculateNewGuess, ALL_CODES, [])
+}

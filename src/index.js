@@ -1,9 +1,6 @@
-import { runBasicExample } from './basicExample'
 import { generateRandomCode } from './mastermindCommon'
 import { mastermindCpu } from './mastermindCpu'
 import { mastermindGpu } from './mastermindGpu'
-
-runBasicExample()
 
 const secret = generateRandomCode()
 
