@@ -6,19 +6,19 @@
 </head>
 
 <body>
-  <div style="width: 50%; margin-left: auto; margin-right: auto;">
+  <div style="width: 95%; max-width: 60rem; margin-left: auto; margin-right: auto;">
     <div style="text-align: right; font-size: small; font-style: italic;">
       version: <%= htmlWebpackPlugin.options.version %>
     </div>
     <hr>
-    <span>CPU:</span>
+    <div>CPU:</div>
     <pre id="cpu-output" style="height: 250px; background-color: lightgrey; overflow-y: scroll;"></pre>
     <hr>
-    <span>GPU:</span>
+    <div>GPU:</div>
     <pre id="gpu-output" style="height: 250px; background-color: lightgrey; overflow-y: scroll;"></pre>
     <hr>
-    <button id="run">Run</button>
-    <span>General:</span>
+    <button id="run" style="margin-bottom: .5rem;">Run</button>
+    <div>System:</div>
     <pre id="sys-output" style="height: 250px; background-color: lightgrey; overflow-y: scroll;"></pre>
   </div>
 </body>

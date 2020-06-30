@@ -14,6 +14,7 @@ const onRun = loggers => {
       mastermindCpu(secret, loggers.cpuLogger)
       mastermindGpu(secret, loggers.gpuLogger)
     } catch (error) {
+      sysOutputElement.innerText = ''
       loggers.sysLogger(error)
       if (error.stack) {
         loggers.sysLogger(error.stack)
@@ -40,5 +41,6 @@ runElement.addEventListener('click', () => onRun(loggers))
 loggers.sysLogger(`GPU.isGPUSupported: ${GPU.isGPUSupported}`)
 loggers.sysLogger(`GPU.isWebGLSupported: ${GPU.isWebGLSupported}`)
 loggers.sysLogger(`GPU.isWebGL2Supported: ${GPU.isWebGL2Supported}`)
+loggers.sysLogger(`GPU.isSinglePrecisionSupported: ${GPU.isSinglePrecisionSupported}`)
 
 onRun(loggers)
