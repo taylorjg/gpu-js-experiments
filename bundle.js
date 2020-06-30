@@ -19560,38 +19560,57 @@ module.exports = {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
-/* harmony import */ var _mastermindCommon__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./mastermindCommon */ "./src/mastermindCommon.js");
-/* harmony import */ var _mastermindCpu__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./mastermindCpu */ "./src/mastermindCpu.js");
-/* harmony import */ var _mastermindGpu__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./mastermindGpu */ "./src/mastermindGpu.js");
-/* harmony import */ var _utils__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./utils */ "./src/utils.js");
+/* harmony import */ var gpu_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! gpu.js */ "./node_modules/gpu.js/dist/gpu-browser.js");
+/* harmony import */ var gpu_js__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(gpu_js__WEBPACK_IMPORTED_MODULE_0__);
+/* harmony import */ var _mastermindCommon__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./mastermindCommon */ "./src/mastermindCommon.js");
+/* harmony import */ var _mastermindCpu__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./mastermindCpu */ "./src/mastermindCpu.js");
+/* harmony import */ var _mastermindGpu__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./mastermindGpu */ "./src/mastermindGpu.js");
+/* harmony import */ var _utils__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./utils */ "./src/utils.js");
 
 
 
 
 
-const onRun = () => {
+
+const onRun = loggers => {
   runElement.disabled = true
   cpuOutputElement.innerText = ''
   gpuOutputElement.innerText = ''
-  _utils__WEBPACK_IMPORTED_MODULE_3__["deferFor"](10, () => {
+  _utils__WEBPACK_IMPORTED_MODULE_4__["deferFor"](10, () => {
     try {
-      const secret = Object(_mastermindCommon__WEBPACK_IMPORTED_MODULE_0__["generateRandomCode"])()
-      Object(_mastermindCpu__WEBPACK_IMPORTED_MODULE_1__["mastermindCpu"])(secret, cpuOutputElement)
-      Object(_mastermindGpu__WEBPACK_IMPORTED_MODULE_2__["mastermindGpu"])(secret, gpuOutputElement)
+      const secret = Object(_mastermindCommon__WEBPACK_IMPORTED_MODULE_1__["generateRandomCode"])()
+      Object(_mastermindCpu__WEBPACK_IMPORTED_MODULE_2__["mastermindCpu"])(secret, loggers.cpuLogger)
+      Object(_mastermindGpu__WEBPACK_IMPORTED_MODULE_3__["mastermindGpu"])(secret, loggers.gpuLogger)
     } catch (error) {
-      console.log(error)
+      if (error.stack) {
+        loggers.sysLogger(error.stack)
+      } else {
+        loggers.sysLogger(error)
+      }
     } finally {
-      _utils__WEBPACK_IMPORTED_MODULE_3__["defer"](() => { runElement.disabled = false })
+      _utils__WEBPACK_IMPORTED_MODULE_4__["defer"](() => { runElement.disabled = false })
     }
   })
 }
 
 const cpuOutputElement = document.getElementById('cpu-output')
 const gpuOutputElement = document.getElementById('gpu-output')
-const runElement = document.getElementById('run')
-runElement.addEventListener('click', onRun)
+const sysOutputElement = document.getElementById('sys-output')
 
-onRun()
+const loggers = {
+  cpuLogger: _utils__WEBPACK_IMPORTED_MODULE_4__["makeLogger"](cpuOutputElement),
+  gpuLogger: _utils__WEBPACK_IMPORTED_MODULE_4__["makeLogger"](gpuOutputElement),
+  sysLogger: _utils__WEBPACK_IMPORTED_MODULE_4__["makeLogger"](sysOutputElement)
+}
+
+const runElement = document.getElementById('run')
+runElement.addEventListener('click', () => onRun(loggers))
+
+loggers.sysLogger(`GPU.isGPUSupported: ${gpu_js__WEBPACK_IMPORTED_MODULE_0__["GPU"].isGPUSupported}`)
+loggers.sysLogger(`GPU.isWebGLSupported: ${gpu_js__WEBPACK_IMPORTED_MODULE_0__["GPU"].isWebGLSupported}`)
+loggers.sysLogger(`GPU.isWebGL2Supported: ${gpu_js__WEBPACK_IMPORTED_MODULE_0__["GPU"].isWebGL2Supported}`)
+
+onRun(loggers)
 
 
 /***/ }),
@@ -19749,8 +19768,7 @@ const calculateNewGuess = untried => {
   return best.guess
 }
 
-const mastermindCpu = (secret, outputElement) => {
-  const logger = _utils__WEBPACK_IMPORTED_MODULE_1__["makeLogger"](outputElement)
+const mastermindCpu = (secret, logger) => {
   logger(`[mastermindCpu] secret: ${Object(_mastermindCommon__WEBPACK_IMPORTED_MODULE_0__["codeToString"])(secret)}`)
   const attempt = guess => Object(_mastermindCommon__WEBPACK_IMPORTED_MODULE_0__["evaluateScore"])(secret, guess)
   const history = Object(_mastermindCommon__WEBPACK_IMPORTED_MODULE_0__["solve"])(logger, attempt, calculateNewGuess)
@@ -19771,14 +19789,12 @@ const mastermindCpu = (secret, outputElement) => {
 __webpack_require__.r(__webpack_exports__);
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "mastermindGpu", function() { return mastermindGpu; });
 /* harmony import */ var _mastermindCommon__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./mastermindCommon */ "./src/mastermindCommon.js");
-/* harmony import */ var _utils__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./utils */ "./src/utils.js");
-/* harmony import */ var gpu_js__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! gpu.js */ "./node_modules/gpu.js/dist/gpu-browser.js");
-/* harmony import */ var gpu_js__WEBPACK_IMPORTED_MODULE_2___default = /*#__PURE__*/__webpack_require__.n(gpu_js__WEBPACK_IMPORTED_MODULE_2__);
+/* harmony import */ var gpu_js__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! gpu.js */ "./node_modules/gpu.js/dist/gpu-browser.js");
+/* harmony import */ var gpu_js__WEBPACK_IMPORTED_MODULE_1___default = /*#__PURE__*/__webpack_require__.n(gpu_js__WEBPACK_IMPORTED_MODULE_1__);
 
 
 
-
-const gpu = new gpu_js__WEBPACK_IMPORTED_MODULE_2__["GPU"]()
+const gpu = new gpu_js__WEBPACK_IMPORTED_MODULE_1__["GPU"]()
 
 function encodeCode(code) {
   const p0 = code[0]
@@ -19880,8 +19896,7 @@ const calculateNewGuess = untried => {
   return decodeCode(overallBest[1])
 }
 
-const mastermindGpu = (secret, outputElement) => {
-  const logger = _utils__WEBPACK_IMPORTED_MODULE_1__["makeLogger"](outputElement)
+const mastermindGpu = (secret, logger) => {
   logger(`[mastermindGpu] secret: ${Object(_mastermindCommon__WEBPACK_IMPORTED_MODULE_0__["codeToString"])(secret)}`)
   const attempt = guess => Object(_mastermindCommon__WEBPACK_IMPORTED_MODULE_0__["evaluateScore"])(secret, guess)
   const history = Object(_mastermindCommon__WEBPACK_IMPORTED_MODULE_0__["solve"])(logger, attempt, calculateNewGuess)
