@@ -33,7 +33,7 @@ function allCodeFromIndex(allPegs, index) {
   return [p0, p1, p2, p3]
 }
 
-function countPegs(peg, code) {
+function countOccurrencesOfPeg(peg, code) {
   const [p0, p1, p2, p3] = code
   return (
     (p0 === peg ? 1 : 0) +
@@ -43,20 +43,26 @@ function countPegs(peg, code) {
   )
 }
 
+function countMatchingPegsByPosition(code1, code2) {
+  return (
+    (code1[0] === code2[0] ? 1 : 0) +
+    (code1[1] === code2[1] ? 1 : 0) +
+    (code1[2] === code2[2] ? 1 : 0) +
+    (code1[3] === code2[3] ? 1 : 0)
+  )
+}
+
 function evaluateScoreGpu(allPegs, code1, code2) {
-  let sumOfMins = 0
+  let sumOfMinOccurrencies = 0
   for (let i = 0; i < 6; i++) {
     const peg = allPegs[i]
-    const numMatchingCode1Pegs = countPegs(peg, code1)
-    const numMatchingCode2Pegs = countPegs(peg, code2)
-    sumOfMins += Math.min(numMatchingCode1Pegs, numMatchingCode2Pegs)
+    const numOccurrencies1 = countOccurrencesOfPeg(peg, code1)
+    const numOccurrencies2 = countOccurrencesOfPeg(peg, code2)
+    const minOccurrencies = Math.min(numOccurrencies1, numOccurrencies2)
+    sumOfMinOccurrencies += minOccurrencies
   }
-  let blacks = 0
-  if (code1[0] == code2[0]) blacks++
-  if (code1[1] == code2[1]) blacks++
-  if (code1[2] == code2[2]) blacks++
-  if (code1[3] == code2[3]) blacks++
-  const whites = sumOfMins - blacks
+  const blacks = countMatchingPegsByPosition(code1, code2)
+  const whites = sumOfMinOccurrencies - blacks
   return [blacks, whites]
 }
 
@@ -66,30 +72,36 @@ function findBest(allPegs, allScores, allCode, untried, untriedCount) {
     const [blacks1, whites1] = allScores[i]
     let count = 0
     for (let j = 0; j < untriedCount; j++) {
-      const untriedCode = decodeCode(untried[j])
+      const [p0, p1, p2, p3] = untried[j]
+      const untriedCode = [p0, p1, p2, p3]
       const [blacks2, whites2] = evaluateScoreGpu(allPegs, allCode, untriedCode)
       if (blacks1 === blacks2 && whites1 === whites2) count++
     }
     maxCount = Math.max(maxCount, count)
   }
-  return [maxCount, encodeCode(allCode)]
+  return maxCount
 }
 
 gpu.addFunction(encodeCode)
-gpu.addFunction(decodeCode)
-gpu.addFunction(allCodeFromIndex)
-gpu.addFunction(countPegs)
+gpu.addFunction(
+  allCodeFromIndex,
+  {
+    argumentTypes: {
+      allPegs: 'Array',
+      index: 'Number'
+    },
+    returnType: 'Array(4)'
+  })
+gpu.addFunction(countOccurrencesOfPeg)
+gpu.addFunction(countMatchingPegsByPosition)
 gpu.addFunction(evaluateScoreGpu)
 gpu.addFunction(findBest)
 
 function kernelEntryPoint(allPegs, allScores, untried, untriedCount) {
   const index = this.thread.x
-  return findBest(
-    allPegs,
-    allScores,
-    allCodeFromIndex(allPegs, index),
-    untried,
-    untriedCount)
+  const allCode = allCodeFromIndex(allPegs, index)
+  const maxCount = findBest(allPegs, allScores, allCode, untried, untriedCount)
+  return [maxCount, encodeCode(allCode)]
 }
 
 const settings = {
@@ -100,9 +112,9 @@ const settings = {
 const kernel = gpu.createKernel(kernelEntryPoint, settings)
 
 const calculateNewGuess = untried => {
-  const untriedInterop = untried.map(encodeCode)
   const allScores = ALL_SCORES.map(({ blacks, whites }) => [blacks, whites])
-  const bests = kernel(ALL_PEGS, allScores, untriedInterop, untriedInterop.length)
+  const untriedCount = untried.length
+  const bests = kernel(ALL_PEGS, allScores, untried, untriedCount)
   const overallBest = bests.reduce(
     (currentBest, best) => best[0] < currentBest[0] ? best : currentBest,
     [Number.MAX_SAFE_INTEGER, undefined])

@@ -57,16 +57,28 @@ export const generateRandomCode = () => {
   return U.range(4).map(chooseRandomPeg)
 }
 
+const countOccurrenciesOfPeg = (peg, code) =>
+  (peg === code[0] ? 1 : 0) +
+  (peg === code[1] ? 1 : 0) +
+  (peg === code[2] ? 1 : 0) +
+  (peg === code[3] ? 1 : 0)
+
+const countMatchingPegsByPosition = (code1, code2) =>
+  (code1[0] === code2[0] ? 1 : 0) +
+  (code1[1] === code2[1] ? 1 : 0) +
+  (code1[2] === code2[2] ? 1 : 0) +
+  (code1[3] === code2[3] ? 1 : 0)
+
 export const evaluateScore = (code1, code2) => {
   const add = (a, b) => a + b
-  const mins = ALL_PEGS.map(peg => {
-    const count1 = U.countWithPredicate(code1, codePeg => codePeg === peg)
-    const count2 = U.countWithPredicate(code2, codePeg => codePeg === peg)
-    return Math.min(count1, count2)
+  const minOccurrencies = ALL_PEGS.map(peg => {
+    const numOccurrencies1 = countOccurrenciesOfPeg(peg, code1)
+    const numOccurrencies2 = countOccurrenciesOfPeg(peg, code2)
+    return Math.min(numOccurrencies1, numOccurrencies2)
   })
-  const sumOfMins = mins.reduce(add)
-  const blacks = code1.filter((peg, index) => peg === code2[index]).length
-  const whites = sumOfMins - blacks
+  const sumOfMinOccurrencies = minOccurrencies.reduce(add)
+  const blacks = countMatchingPegsByPosition(code1, code2)
+  const whites = sumOfMinOccurrencies - blacks
   return { blacks, whites }
 }
 
