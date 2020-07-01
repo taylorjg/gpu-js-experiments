@@ -19697,16 +19697,28 @@ const generateRandomCode = () => {
   return _utils__WEBPACK_IMPORTED_MODULE_0__["range"](4).map(chooseRandomPeg)
 }
 
+const countOccurrenciesOfPeg = (peg, code) =>
+  (peg === code[0] ? 1 : 0) +
+  (peg === code[1] ? 1 : 0) +
+  (peg === code[2] ? 1 : 0) +
+  (peg === code[3] ? 1 : 0)
+
+const countMatchingPegsByPosition = (code1, code2) =>
+  (code1[0] === code2[0] ? 1 : 0) +
+  (code1[1] === code2[1] ? 1 : 0) +
+  (code1[2] === code2[2] ? 1 : 0) +
+  (code1[3] === code2[3] ? 1 : 0)
+
 const evaluateScore = (code1, code2) => {
   const add = (a, b) => a + b
-  const mins = ALL_PEGS.map(peg => {
-    const count1 = _utils__WEBPACK_IMPORTED_MODULE_0__["countWithPredicate"](code1, codePeg => codePeg === peg)
-    const count2 = _utils__WEBPACK_IMPORTED_MODULE_0__["countWithPredicate"](code2, codePeg => codePeg === peg)
-    return Math.min(count1, count2)
+  const minOccurrencies = ALL_PEGS.map(peg => {
+    const numOccurrencies1 = countOccurrenciesOfPeg(peg, code1)
+    const numOccurrencies2 = countOccurrenciesOfPeg(peg, code2)
+    return Math.min(numOccurrencies1, numOccurrencies2)
   })
-  const sumOfMins = mins.reduce(add)
-  const blacks = code1.filter((peg, index) => peg === code2[index]).length
-  const whites = sumOfMins - blacks
+  const sumOfMinOccurrencies = minOccurrencies.reduce(add)
+  const blacks = countMatchingPegsByPosition(code1, code2)
+  const whites = sumOfMinOccurrencies - blacks
   return { blacks, whites }
 }
 
@@ -19821,7 +19833,7 @@ function allCodeFromIndex(allPegs, index) {
   return [p0, p1, p2, p3]
 }
 
-function countPegs(peg, code) {
+function countOccurrencesOfPeg(peg, code) {
   const [p0, p1, p2, p3] = code
   return (
     (p0 === peg ? 1 : 0) +
@@ -19831,20 +19843,26 @@ function countPegs(peg, code) {
   )
 }
 
+function countMatchingPegsByPosition(code1, code2) {
+  return (
+    (code1[0] === code2[0] ? 1 : 0) +
+    (code1[1] === code2[1] ? 1 : 0) +
+    (code1[2] === code2[2] ? 1 : 0) +
+    (code1[3] === code2[3] ? 1 : 0)
+  )
+}
+
 function evaluateScoreGpu(allPegs, code1, code2) {
-  let sumOfMins = 0
+  let sumOfMinOccurrencies = 0
   for (let i = 0; i < 6; i++) {
     const peg = allPegs[i]
-    const numMatchingCode1Pegs = countPegs(peg, code1)
-    const numMatchingCode2Pegs = countPegs(peg, code2)
-    sumOfMins += Math.min(numMatchingCode1Pegs, numMatchingCode2Pegs)
+    const numOccurrencies1 = countOccurrencesOfPeg(peg, code1)
+    const numOccurrencies2 = countOccurrencesOfPeg(peg, code2)
+    const minOccurrencies = Math.min(numOccurrencies1, numOccurrencies2)
+    sumOfMinOccurrencies += minOccurrencies
   }
-  let blacks = 0
-  if (code1[0] == code2[0]) blacks++
-  if (code1[1] == code2[1]) blacks++
-  if (code1[2] == code2[2]) blacks++
-  if (code1[3] == code2[3]) blacks++
-  const whites = sumOfMins - blacks
+  const blacks = countMatchingPegsByPosition(code1, code2)
+  const whites = sumOfMinOccurrencies - blacks
   return [blacks, whites]
 }
 
@@ -19854,30 +19872,36 @@ function findBest(allPegs, allScores, allCode, untried, untriedCount) {
     const [blacks1, whites1] = allScores[i]
     let count = 0
     for (let j = 0; j < untriedCount; j++) {
-      const untriedCode = decodeCode(untried[j])
+      const [p0, p1, p2, p3] = untried[j]
+      const untriedCode = [p0, p1, p2, p3]
       const [blacks2, whites2] = evaluateScoreGpu(allPegs, allCode, untriedCode)
       if (blacks1 === blacks2 && whites1 === whites2) count++
     }
     maxCount = Math.max(maxCount, count)
   }
-  return [maxCount, encodeCode(allCode)]
+  return maxCount
 }
 
 gpu.addFunction(encodeCode)
-gpu.addFunction(decodeCode)
-gpu.addFunction(allCodeFromIndex)
-gpu.addFunction(countPegs)
+gpu.addFunction(
+  allCodeFromIndex,
+  {
+    argumentTypes: {
+      allPegs: 'Array',
+      index: 'Number'
+    },
+    returnType: 'Array(4)'
+  })
+gpu.addFunction(countOccurrencesOfPeg)
+gpu.addFunction(countMatchingPegsByPosition)
 gpu.addFunction(evaluateScoreGpu)
 gpu.addFunction(findBest)
 
 function kernelEntryPoint(allPegs, allScores, untried, untriedCount) {
   const index = this.thread.x
-  return findBest(
-    allPegs,
-    allScores,
-    allCodeFromIndex(allPegs, index),
-    untried,
-    untriedCount)
+  const allCode = allCodeFromIndex(allPegs, index)
+  const maxCount = findBest(allPegs, allScores, allCode, untried, untriedCount)
+  return [maxCount, encodeCode(allCode)]
 }
 
 const settings = {
@@ -19888,9 +19912,9 @@ const settings = {
 const kernel = gpu.createKernel(kernelEntryPoint, settings)
 
 const calculateNewGuess = untried => {
-  const untriedInterop = untried.map(encodeCode)
   const allScores = _mastermindCommon__WEBPACK_IMPORTED_MODULE_0__["ALL_SCORES"].map(({ blacks, whites }) => [blacks, whites])
-  const bests = kernel(_mastermindCommon__WEBPACK_IMPORTED_MODULE_0__["ALL_PEGS"], allScores, untriedInterop, untriedInterop.length)
+  const untriedCount = untried.length
+  const bests = kernel(_mastermindCommon__WEBPACK_IMPORTED_MODULE_0__["ALL_PEGS"], allScores, untried, untriedCount)
   const overallBest = bests.reduce(
     (currentBest, best) => best[0] < currentBest[0] ? best : currentBest,
     [Number.MAX_SAFE_INTEGER, undefined])
@@ -19911,18 +19935,22 @@ const mastermindGpu = (secret, logger) => {
 /*!**********************!*\
   !*** ./src/utils.js ***!
   \**********************/
-/*! exports provided: range, countWithPredicate, makeLogger, defer, deferFor */
+/*! exports provided: range, flatten, countWithPredicate, makeLogger, defer, deferFor */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "range", function() { return range; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "flatten", function() { return flatten; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "countWithPredicate", function() { return countWithPredicate; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "makeLogger", function() { return makeLogger; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "defer", function() { return defer; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "deferFor", function() { return deferFor; });
 const range = n =>
   Array.from(Array(n).keys())
+
+const flatten = xss =>
+  [].concat(...xss)
 
 const countWithPredicate = (xs, p) =>
   xs.reduce((acc, x) => acc + (p(x) ? 1 : 0), 0)
