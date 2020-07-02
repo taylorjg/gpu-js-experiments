@@ -29,12 +29,11 @@ function allCodeFromIndex(allPegs, index) {
 }
 
 function countOccurrencesOfPeg(peg, code) {
-  const [p0, p1, p2, p3] = code
   return (
-    (p0 === peg ? 1 : 0) +
-    (p1 === peg ? 1 : 0) +
-    (p2 === peg ? 1 : 0) +
-    (p3 === peg ? 1 : 0)
+    (peg === code[0] ? 1 : 0) +
+    (peg === code[1] ? 1 : 0) +
+    (peg === code[2] ? 1 : 0) +
+    (peg === code[3] ? 1 : 0)
   )
 }
 
