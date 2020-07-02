@@ -1,7 +1,7 @@
 import { GPU } from 'gpu.js'
 import { generateRandomCode } from './mastermindCommon'
 import { mastermindCpu } from './mastermindCpu'
-// import { mastermindGpu } from './mastermindGpu'
+import { mastermindGpu } from './mastermindGpu'
 import * as U from './utils'
 
 const onRun = async loggers => {
@@ -10,7 +10,9 @@ const onRun = async loggers => {
     cpuOutputElement.innerText = ''
     gpuOutputElement.innerText = ''
     const secret = generateRandomCode()
-    await mastermindCpu(secret, loggers.cpuLogger)
+    const cpuPromise = mastermindCpu(secret, loggers.cpuLogger)
+    const gpuPromise = mastermindGpu(secret, loggers.gpuLogger)
+    await Promise.all([cpuPromise, gpuPromise])
   } catch (error) {
     console.log(error)
     error.stack && console.log(error.stack)
