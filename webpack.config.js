@@ -14,6 +14,7 @@ module.exports = {
   output: {
     path: SERVER_PUBLIC,
     filename: 'bundle.js',
+    globalObject: '(typeof self != \'undefined\' ? self : this)'
   },
   plugins: [
     new HtmlWebpackPlugin({
