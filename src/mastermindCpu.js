@@ -1,30 +1,16 @@
-import {
-  ALL_CODES,
-  ALL_SCORES,
-  evaluateScore,
-  evaluatesToSameScore,
-  codeToString,
-  solve
-} from './mastermindCommon'
-import * as U from './utils'
+import PromiseWorker from 'promise-worker'
+import { evaluateScore, solve, codeToString } from './mastermindCommon'
+
+const webWorker = new Worker('./mastermindCpuWebWorker.js', { type: 'module' })
+const webWorkerP = new PromiseWorker(webWorker)
 
 const calculateNewGuess = untried => {
-  const initialBest = { count: Number.MAX_VALUE }
-  const best = ALL_CODES.reduce((currentBest, allCode) => {
-    const maxCount = ALL_SCORES.reduce((currentMax, allScore) => {
-      const count = U.countWithPredicate(untried, evaluatesToSameScore(allCode, allScore))
-      return Math.max(currentMax, count)
-    }, 0)
-    return maxCount < currentBest.count
-      ? { count: maxCount, guess: allCode }
-      : currentBest
-  }, initialBest)
-  return best.guess
+  return webWorkerP.postMessage({ type: 'calculateNewGuess', untried })
 }
 
-export const mastermindCpu = (secret, logger) => {
-  logger(`[mastermindCpu] secret: ${codeToString(secret)}`)
+export const mastermindCpu = async (secret, logger) => {
+  logger(`secret: ${codeToString(secret)}`)
   const attempt = guess => evaluateScore(secret, guess)
-  const history = solve(logger, attempt, calculateNewGuess)
-  logger(`[mastermindCpu] numAttempts: ${history.length}`)
+  const history = await solve(logger, attempt, calculateNewGuess)
+  logger(`numAttempts: ${history.length}`)
 }

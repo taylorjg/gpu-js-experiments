@@ -89,22 +89,22 @@ export const sameScore = (score1, score2) =>
 export const evaluatesToSameScore = (code1, score) => code2 =>
   sameScore(evaluateScore(code1, code2), score)
 
-const recursiveSolveStep = (logger, attempt, calculateNewGuess, untried, history) => {
-  logger(`[recursiveSolveStep] untried length: ${untried.length}`)
+const recursiveSolveStep = async (logger, attempt, calculateNewGuess, untried, history) => {
+  logger(`untried length: ${untried.length}`)
   const guess = history.length === 0 ? INITIAL_GUESS :
-    untried.length === 1 ? untried[0] : calculateNewGuess(untried)
+    untried.length === 1 ? untried[0] : await calculateNewGuess(untried)
   const score = attempt(guess)
-  logger(`[recursiveSolveStep] guess: ${codeToString(guess)}; score: ${scoreToString(score)}`)
+  logger(`guess: ${codeToString(guess)}; score: ${scoreToString(score)}`)
   const newHistory = [...history, { guess, score }]
   if (score.blacks === 4) return newHistory
   const newUntried = untried.filter(evaluatesToSameScore(guess, score))
   return recursiveSolveStep(logger, attempt, calculateNewGuess, newUntried, newHistory)
 }
 
-export const solve = (logger, attempt, calculateNewGuess) => {
+export const solve = async (logger, attempt, calculateNewGuess) => {
   const start = performance.now()
-  const history = recursiveSolveStep(logger, attempt, calculateNewGuess, ALL_CODES, [])
+  const history = await recursiveSolveStep(logger, attempt, calculateNewGuess, ALL_CODES, [])
   const end = performance.now()
-  logger(`[solve] duration: ${(end - start).toFixed(2)}ms`)
+  logger(`duration: ${(end - start).toFixed(2)}ms`)
   return history
 }

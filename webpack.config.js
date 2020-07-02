@@ -1,6 +1,8 @@
 /* eslint-env node */
 
 const HtmlWebpackPlugin = require('html-webpack-plugin')
+const WorkerPlugin = require('worker-plugin')
+
 const path = require('path')
 const { version } = require('./package.json')
 
@@ -17,7 +19,8 @@ module.exports = {
     new HtmlWebpackPlugin({
       template: './src/index.html',
       version
-    })
+    }),
+    new WorkerPlugin()
   ],
   devtool: 'source-map',
   devServer: {

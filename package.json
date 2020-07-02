@@ -1,6 +1,6 @@
 {
   "name": "gpu-js-experiments",
-  "version": "0.0.6",
+  "version": "0.0.7",
   "description": "Playing around with gpu.js",
   "main": "index.js",
   "scripts": {
@@ -12,13 +12,15 @@
   "license": "MIT",
   "dependencies": {
     "express": "^4.17.1",
-    "gpu.js": "^2.9.4"
+    "gpu.js": "^2.9.4",
+    "promise-worker": "^2.0.1"
   },
   "devDependencies": {
     "eslint": "^7.3.1",
     "html-webpack-plugin": "^4.3.0",
     "webpack": "^4.43.0",
     "webpack-cli": "^3.3.12",
-    "webpack-dev-server": "^3.11.0"
+    "webpack-dev-server": "^3.11.0",
+    "worker-plugin": "^4.0.3"
   }
 }
