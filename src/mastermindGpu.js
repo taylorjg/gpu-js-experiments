@@ -53,16 +53,16 @@ function countMatchingPegsByPosition(code1, code2) {
 }
 
 function evaluateScoreGpu(allPegs, code1, code2) {
-  let sumOfMinOccurrencies = 0
+  let sumOfMinOccurrences = 0
   for (let i = 0; i < 6; i++) {
     const peg = allPegs[i]
-    const numOccurrencies1 = countOccurrencesOfPeg(peg, code1)
-    const numOccurrencies2 = countOccurrencesOfPeg(peg, code2)
-    const minOccurrencies = Math.min(numOccurrencies1, numOccurrencies2)
-    sumOfMinOccurrencies += minOccurrencies
+    const numOccurrences1 = countOccurrencesOfPeg(peg, code1)
+    const numOccurrences2 = countOccurrencesOfPeg(peg, code2)
+    const minOccurrences = Math.min(numOccurrences1, numOccurrences2)
+    sumOfMinOccurrences += minOccurrences
   }
   const blacks = countMatchingPegsByPosition(code1, code2)
-  const whites = sumOfMinOccurrencies - blacks
+  const whites = sumOfMinOccurrences - blacks
   return [blacks, whites]
 }
 

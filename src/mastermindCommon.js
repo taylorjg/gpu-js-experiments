@@ -57,7 +57,7 @@ export const generateRandomCode = () => {
   return U.range(4).map(chooseRandomPeg)
 }
 
-const countOccurrenciesOfPeg = (peg, code) =>
+const countOccurrencesOfPeg = (peg, code) =>
   (peg === code[0] ? 1 : 0) +
   (peg === code[1] ? 1 : 0) +
   (peg === code[2] ? 1 : 0) +
@@ -71,14 +71,14 @@ const countMatchingPegsByPosition = (code1, code2) =>
 
 export const evaluateScore = (code1, code2) => {
   const add = (a, b) => a + b
-  const minOccurrencies = ALL_PEGS.map(peg => {
-    const numOccurrencies1 = countOccurrenciesOfPeg(peg, code1)
-    const numOccurrencies2 = countOccurrenciesOfPeg(peg, code2)
-    return Math.min(numOccurrencies1, numOccurrencies2)
+  const minOccurrences = ALL_PEGS.map(peg => {
+    const numOccurrences1 = countOccurrencesOfPeg(peg, code1)
+    const numOccurrences2 = countOccurrencesOfPeg(peg, code2)
+    return Math.min(numOccurrences1, numOccurrences2)
   })
-  const sumOfMinOccurrencies = minOccurrencies.reduce(add)
+  const sumOfMinOccurrences = minOccurrences.reduce(add)
   const blacks = countMatchingPegsByPosition(code1, code2)
-  const whites = sumOfMinOccurrencies - blacks
+  const whites = sumOfMinOccurrences - blacks
   return { blacks, whites }
 }
 
