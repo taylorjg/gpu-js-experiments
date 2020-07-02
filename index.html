@@ -7,19 +7,30 @@
 
 <body>
   <div style="width: 95%; max-width: 60rem; margin-left: auto; margin-right: auto;">
-    <div style="text-align: right; font-size: small; font-style: italic;">
-      version: 0.0.6
+    <div style="display: flex; justify-content: space-between;">
+      <button id="run" style="margin-bottom: .5rem;">Run</button>
+      <div style="text-align: right; font-size: small; font-style: italic;">
+        version: 0.0.9
+      </div>
     </div>
     <hr>
-    <div>CPU:</div>
-    <pre id="cpu-output" style="height: 250px; background-color: lightgrey; overflow-y: scroll;"></pre>
+    <div style="display: flex; align-items: flex-start;">
+      <div style="width: 4rem;">CPU:</div>
+      <pre id="cpu-output"
+        style="flex-grow: 1; margin: 0; height: 14rem; background-color: lightgrey; overflow-y: scroll;"></pre>
+    </div>
     <hr>
-    <div>GPU:</div>
-    <pre id="gpu-output" style="height: 250px; background-color: lightgrey; overflow-y: scroll;"></pre>
+    <div style="display: flex; align-items: flex-start;">
+      <div style="width: 4rem;">GPU:</div>
+      <pre id="gpu-output"
+        style="flex-grow: 1; margin: 0; height: 14rem; background-color: lightgrey; overflow-y: scroll;"></pre>
+    </div>
     <hr>
-    <button id="run" style="margin-bottom: .5rem;">Run</button>
-    <div>System:</div>
-    <pre id="sys-output" style="height: 250px; background-color: lightgrey; overflow-y: scroll;"></pre>
+    <div style="display: flex; align-items: flex-start;">
+      <div style="width: 4rem;">System:</div>
+      <pre id="sys-output"
+        style="flex-grow: 1; margin: 0; height: 4rem; background-color: lightgrey; overflow-y: scroll;"></pre>
+    </div>
   </div>
 <script src="bundle.js"></script></body>
 

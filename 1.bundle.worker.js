@@ -81,7 +81,7 @@
 /******/
 /******/
 /******/ 	// Load entry module and return exports
-/******/ 	return __webpack_require__(__webpack_require__.s = "./src/index.js");
+/******/ 	return __webpack_require__(__webpack_require__.s = "./src/mastermindGpuWebWorker.js");
 /******/ })
 /************************************************************************/
 /******/ ({
@@ -19551,162 +19551,92 @@ module.exports = {
 
 /***/ }),
 
-/***/ "./node_modules/promise-worker/index.js":
-/*!**********************************************!*\
-  !*** ./node_modules/promise-worker/index.js ***!
-  \**********************************************/
+/***/ "./node_modules/promise-worker/register.js":
+/*!*************************************************!*\
+  !*** ./node_modules/promise-worker/register.js ***!
+  \*************************************************/
 /*! no static exports found */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
 
 
-var messageIds = 0
-
-function onMessage (self, e) {
-  var message = e.data
-  if (!Array.isArray(message) || message.length < 2) {
-    // Ignore - this message is not for us.
-    return
-  }
-  var messageId = message[0]
-  var error = message[1]
-  var result = message[2]
-
-  var callback = self._callbacks[messageId]
-
-  if (!callback) {
-    // Ignore - user might have created multiple PromiseWorkers.
-    // This message is not for us.
-    return
-  }
-
-  delete self._callbacks[messageId]
-  callback(error, result)
+function isPromise (obj) {
+  // via https://unpkg.com/is-promise@2.1.0/index.js
+  return !!obj && (typeof obj === 'object' || typeof obj === 'function') && typeof obj.then === 'function'
 }
 
-function PromiseWorker (worker) {
-  var self = this
-  self._worker = worker
-  self._callbacks = {}
-
-  worker.addEventListener('message', function (e) {
-    onMessage(self, e)
-  })
-}
-
-PromiseWorker.prototype.postMessage = function (userMessage) {
-  var self = this
-  var messageId = messageIds++
-
-  var messageToSend = [messageId, userMessage]
-
-  return new Promise(function (resolve, reject) {
-    self._callbacks[messageId] = function (error, result) {
-      if (error) {
-        return reject(new Error(error.message))
+function registerPromiseWorker (callback) {
+  function postOutgoingMessage (e, messageId, error, result) {
+    function postMessage (msg) {
+      /* istanbul ignore if */
+      if (typeof self.postMessage !== 'function') { // service worker
+        e.ports[0].postMessage(msg)
+      } else { // web worker
+        self.postMessage(msg)
       }
-      resolve(result)
     }
-
-    /* istanbul ignore if */
-    if (typeof self._worker.controller !== 'undefined') {
-      // service worker, use MessageChannels because e.source is broken in Chrome < 51:
-      // https://bugs.chromium.org/p/chromium/issues/detail?id=543198
-      var channel = new MessageChannel()
-      channel.port1.onmessage = function (e) {
-        onMessage(self, e)
+    if (error) {
+      /* istanbul ignore else */
+      if (typeof console !== 'undefined' && 'error' in console) {
+        // This is to make errors easier to debug. I think it's important
+        // enough to just leave here without giving the user an option
+        // to silence it.
+        console.error('Worker caught an error:', error)
       }
-      self._worker.controller.postMessage(messageToSend, [channel.port2])
+      postMessage([messageId, {
+        message: error.message
+      }])
     } else {
-      // web worker
-      self._worker.postMessage(messageToSend)
+      postMessage([messageId, null, result])
     }
-  })
-}
-
-module.exports = PromiseWorker
-
-
-/***/ }),
-
-/***/ "./node_modules/worker-plugin/dist/loader.js?name=0!./src/mastermindCpuWebWorker.js":
-/*!******************************************************************************************!*\
-  !*** ./node_modules/worker-plugin/dist/loader.js?name=0!./src/mastermindCpuWebWorker.js ***!
-  \******************************************************************************************/
-/*! no static exports found */
-/***/ (function(module, exports, __webpack_require__) {
-
-module.exports = __webpack_require__.p + "0.bundle.worker.js"
-
-/***/ }),
-
-/***/ "./node_modules/worker-plugin/dist/loader.js?name=1!./src/mastermindGpuWebWorker.js":
-/*!******************************************************************************************!*\
-  !*** ./node_modules/worker-plugin/dist/loader.js?name=1!./src/mastermindGpuWebWorker.js ***!
-  \******************************************************************************************/
-/*! no static exports found */
-/***/ (function(module, exports, __webpack_require__) {
-
-module.exports = __webpack_require__.p + "1.bundle.worker.js"
-
-/***/ }),
-
-/***/ "./src/index.js":
-/*!**********************!*\
-  !*** ./src/index.js ***!
-  \**********************/
-/*! no exports provided */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-__webpack_require__.r(__webpack_exports__);
-/* harmony import */ var gpu_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! gpu.js */ "./node_modules/gpu.js/dist/gpu-browser.js");
-/* harmony import */ var gpu_js__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(gpu_js__WEBPACK_IMPORTED_MODULE_0__);
-/* harmony import */ var _mastermindCommon__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./mastermindCommon */ "./src/mastermindCommon.js");
-/* harmony import */ var _mastermindCpu__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./mastermindCpu */ "./src/mastermindCpu.js");
-/* harmony import */ var _mastermindGpu__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./mastermindGpu */ "./src/mastermindGpu.js");
-/* harmony import */ var _utils__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./utils */ "./src/utils.js");
-
-
-
-
-
-
-const onRun = async loggers => {
-  runElement.disabled = true
-  try {
-    const { cpuLogger, gpuLogger } = loggers
-    cpuOutputElement.innerText = ''
-    gpuOutputElement.innerText = ''
-    const secret = Object(_mastermindCommon__WEBPACK_IMPORTED_MODULE_1__["randomSecret"])()
-    const cpuPromise = Object(_mastermindCommon__WEBPACK_IMPORTED_MODULE_1__["solve"])(cpuLogger, secret, _mastermindCpu__WEBPACK_IMPORTED_MODULE_2__["calculateNewGuessCpu"]).catch(cpuLogger)
-    const gpuPromise = Object(_mastermindCommon__WEBPACK_IMPORTED_MODULE_1__["solve"])(gpuLogger, secret, _mastermindGpu__WEBPACK_IMPORTED_MODULE_3__["calculateNewGuessGpu"]).catch(gpuLogger)
-    await Promise.all([cpuPromise, gpuPromise])
-  } finally {
-    runElement.disabled = false
   }
+
+  function tryCatchFunc (callback, message) {
+    try {
+      return { res: callback(message) }
+    } catch (e) {
+      return { err: e }
+    }
+  }
+
+  function handleIncomingMessage (e, callback, messageId, message) {
+    var result = tryCatchFunc(callback, message)
+
+    if (result.err) {
+      postOutgoingMessage(e, messageId, result.err)
+    } else if (!isPromise(result.res)) {
+      postOutgoingMessage(e, messageId, null, result.res)
+    } else {
+      result.res.then(function (finalResult) {
+        postOutgoingMessage(e, messageId, null, finalResult)
+      }, function (finalError) {
+        postOutgoingMessage(e, messageId, finalError)
+      })
+    }
+  }
+
+  function onIncomingMessage (e) {
+    var payload = e.data
+    if (!Array.isArray(payload) || payload.length !== 2) {
+      // message doens't match communication format; ignore
+      return
+    }
+    var messageId = payload[0]
+    var message = payload[1]
+
+    if (typeof callback !== 'function') {
+      postOutgoingMessage(e, messageId, new Error(
+        'Please pass a function into register().'))
+    } else {
+      handleIncomingMessage(e, callback, messageId, message)
+    }
+  }
+
+  self.addEventListener('message', onIncomingMessage)
 }
 
-const cpuOutputElement = document.getElementById('cpu-output')
-const gpuOutputElement = document.getElementById('gpu-output')
-const sysOutputElement = document.getElementById('sys-output')
-
-const loggers = {
-  cpuLogger: _utils__WEBPACK_IMPORTED_MODULE_4__["makeLogger"](cpuOutputElement),
-  gpuLogger: _utils__WEBPACK_IMPORTED_MODULE_4__["makeLogger"](gpuOutputElement),
-  sysLogger: _utils__WEBPACK_IMPORTED_MODULE_4__["makeLogger"](sysOutputElement)
-}
-
-const runElement = document.getElementById('run')
-runElement.addEventListener('click', () => onRun(loggers))
-
-loggers.sysLogger(`GPU.isGPUSupported: ${gpu_js__WEBPACK_IMPORTED_MODULE_0__["GPU"].isGPUSupported}`)
-loggers.sysLogger(`GPU.isWebGLSupported: ${gpu_js__WEBPACK_IMPORTED_MODULE_0__["GPU"].isWebGLSupported}`)
-loggers.sysLogger(`GPU.isWebGL2Supported: ${gpu_js__WEBPACK_IMPORTED_MODULE_0__["GPU"].isWebGL2Supported}`)
-loggers.sysLogger(`GPU.isSinglePrecisionSupported: ${gpu_js__WEBPACK_IMPORTED_MODULE_0__["GPU"].isSinglePrecisionSupported}`)
-
-onRun(loggers)
+module.exports = registerPromiseWorker
 
 
 /***/ }),
@@ -19849,51 +19779,151 @@ const solve = async (logger, secret, calculateNewGuess) => {
 
 /***/ }),
 
-/***/ "./src/mastermindCpu.js":
-/*!******************************!*\
-  !*** ./src/mastermindCpu.js ***!
-  \******************************/
-/*! exports provided: calculateNewGuessCpu */
+/***/ "./src/mastermindGpuWebWorker.js":
+/*!***************************************!*\
+  !*** ./src/mastermindGpuWebWorker.js ***!
+  \***************************************/
+/*! no exports provided */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
-/* WEBPACK VAR INJECTION */(function(__webpack__worker__0) {/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "calculateNewGuessCpu", function() { return calculateNewGuessCpu; });
-/* harmony import */ var promise_worker__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! promise-worker */ "./node_modules/promise-worker/index.js");
-/* harmony import */ var promise_worker__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(promise_worker__WEBPACK_IMPORTED_MODULE_0__);
+/* harmony import */ var promise_worker_register__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! promise-worker/register */ "./node_modules/promise-worker/register.js");
+/* harmony import */ var promise_worker_register__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(promise_worker_register__WEBPACK_IMPORTED_MODULE_0__);
+/* harmony import */ var gpu_js__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! gpu.js */ "./node_modules/gpu.js/dist/gpu-browser.js");
+/* harmony import */ var gpu_js__WEBPACK_IMPORTED_MODULE_1___default = /*#__PURE__*/__webpack_require__.n(gpu_js__WEBPACK_IMPORTED_MODULE_1__);
+/* harmony import */ var _mastermindCommon__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./mastermindCommon */ "./src/mastermindCommon.js");
 
 
-const webWorker = new Worker(__webpack__worker__0, undefined)
-const webWorkerP = new promise_worker__WEBPACK_IMPORTED_MODULE_0___default.a(webWorker)
-
-const calculateNewGuessCpu = untried =>
-  webWorkerP.postMessage({ type: 'calculateNewGuess', untried })
-
-/* WEBPACK VAR INJECTION */}.call(this, __webpack_require__(/*! ./node_modules/worker-plugin/dist/loader.js?name=0!./mastermindCpuWebWorker.js */ "./node_modules/worker-plugin/dist/loader.js?name=0!./src/mastermindCpuWebWorker.js")))
-
-/***/ }),
-
-/***/ "./src/mastermindGpu.js":
-/*!******************************!*\
-  !*** ./src/mastermindGpu.js ***!
-  \******************************/
-/*! exports provided: calculateNewGuessGpu */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-__webpack_require__.r(__webpack_exports__);
-/* WEBPACK VAR INJECTION */(function(__webpack__worker__1) {/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "calculateNewGuessGpu", function() { return calculateNewGuessGpu; });
-/* harmony import */ var promise_worker__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! promise-worker */ "./node_modules/promise-worker/index.js");
-/* harmony import */ var promise_worker__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(promise_worker__WEBPACK_IMPORTED_MODULE_0__);
 
 
-const webWorker = new Worker(__webpack__worker__1, undefined)
-const webWorkerP = new promise_worker__WEBPACK_IMPORTED_MODULE_0___default.a(webWorker)
+const gpu = new gpu_js__WEBPACK_IMPORTED_MODULE_1__["GPU"]()
 
-const calculateNewGuessGpu = untried =>
-  webWorkerP.postMessage({ type: 'calculateNewGuess', untried })
+function encodeCode(code) {
+  const p0 = code[0]
+  const p1 = code[1] << 4
+  const p2 = code[2] << 8
+  const p3 = code[3] << 12
+  return p0 | p1 | p2 | p3
+}
 
-/* WEBPACK VAR INJECTION */}.call(this, __webpack_require__(/*! ./node_modules/worker-plugin/dist/loader.js?name=1!./mastermindGpuWebWorker.js */ "./node_modules/worker-plugin/dist/loader.js?name=1!./src/mastermindGpuWebWorker.js")))
+function decodeCode(encoded) {
+  const p0 = encoded & 0x000f
+  const p1 = (encoded & 0x00f0) >> 4
+  const p2 = (encoded & 0x0f00) >> 8
+  const p3 = (encoded & 0xf000) >> 12
+  return [p0, p1, p2, p3]
+}
+
+function allCodeFromIndex(allPegs, index) {
+  const p0 = allPegs[Math.trunc(index / 216) % 6]
+  const p1 = allPegs[Math.trunc(index / 36) % 6]
+  const p2 = allPegs[Math.trunc(index / 6) % 6]
+  const p3 = allPegs[index % 6]
+  return [p0, p1, p2, p3]
+}
+
+function countOccurrencesOfPeg(peg, code) {
+  const [p0, p1, p2, p3] = code
+  return (
+    (p0 === peg ? 1 : 0) +
+    (p1 === peg ? 1 : 0) +
+    (p2 === peg ? 1 : 0) +
+    (p3 === peg ? 1 : 0)
+  )
+}
+
+function countMatchingPegsByPosition(code1, code2) {
+  return (
+    (code1[0] === code2[0] ? 1 : 0) +
+    (code1[1] === code2[1] ? 1 : 0) +
+    (code1[2] === code2[2] ? 1 : 0) +
+    (code1[3] === code2[3] ? 1 : 0)
+  )
+}
+
+function evaluateScore(allPegs, code1, code2) {
+  let sumOfMinOccurrences = 0
+  for (let i = 0; i < 6; i++) {
+    const peg = allPegs[i]
+    const numOccurrences1 = countOccurrencesOfPeg(peg, code1)
+    const numOccurrences2 = countOccurrencesOfPeg(peg, code2)
+    const minOccurrences = Math.min(numOccurrences1, numOccurrences2)
+    sumOfMinOccurrences += minOccurrences
+  }
+  const blacks = countMatchingPegsByPosition(code1, code2)
+  const whites = sumOfMinOccurrences - blacks
+  return [blacks, whites]
+}
+
+function findBest(allPegs, allScores, allCode, untried, untriedCount) {
+  let maxCount = 0
+  for (let i = 0; i < 14; i++) {
+    const [blacks1, whites1] = allScores[i]
+    let count = 0
+    for (let j = 0; j < untriedCount; j++) {
+      const [p0, p1, p2, p3] = untried[j]
+      const untriedCode = [p0, p1, p2, p3]
+      const [blacks2, whites2] = evaluateScore(allPegs, allCode, untriedCode)
+      if (blacks1 === blacks2 && whites1 === whites2) count++
+    }
+    maxCount = Math.max(maxCount, count)
+  }
+  return maxCount
+}
+
+gpu.addFunction(encodeCode)
+gpu.addFunction(
+  allCodeFromIndex,
+  {
+    argumentTypes: {
+      allPegs: 'Array',
+      index: 'Number'
+    },
+    returnType: 'Array(4)'
+  })
+gpu.addFunction(countOccurrencesOfPeg)
+gpu.addFunction(countMatchingPegsByPosition)
+gpu.addFunction(evaluateScore)
+gpu.addFunction(findBest)
+
+function kernelEntryPoint(allPegs, allScores, untried, untriedCount) {
+  const index = this.thread.x
+  const allCode = allCodeFromIndex(allPegs, index)
+  const maxCount = findBest(allPegs, allScores, allCode, untried, untriedCount)
+  return [maxCount, encodeCode(allCode)]
+}
+
+const settings = {
+  output: [1296],
+  dynamicArguments: true
+}
+
+const kernel = gpu.createKernel(kernelEntryPoint, settings)
+
+const onCalculateNewGuess = untried => {
+  const allScores = _mastermindCommon__WEBPACK_IMPORTED_MODULE_2__["ALL_SCORES"].map(({ blacks, whites }) => [blacks, whites])
+  const untriedCount = untried.length
+  const bests = kernel(_mastermindCommon__WEBPACK_IMPORTED_MODULE_2__["ALL_PEGS"], allScores, untried, untriedCount)
+  const overallBest = bests.reduce(
+    (currentBest, best) => best[0] < currentBest[0] ? best : currentBest,
+    [Number.MAX_SAFE_INTEGER, undefined])
+  return decodeCode(overallBest[1])
+}
+
+const onUnknownMessage = message => {
+  console.log(`Unknown message: ${JSON.stringify(message)}`)
+}
+
+const processMessage = message => {
+  switch (message.type) {
+    case 'calculateNewGuess': return onCalculateNewGuess(message.untried)
+    default: return onUnknownMessage(message)
+  }
+}
+
+promise_worker_register__WEBPACK_IMPORTED_MODULE_0___default()(processMessage)
+
 
 /***/ }),
 
@@ -19941,4 +19971,4 @@ const deferFor = (ms, thunk) =>
 /***/ })
 
 /******/ });
-//# sourceMappingURL=bundle.js.map
+//# sourceMappingURL=1.bundle.worker.js.map
