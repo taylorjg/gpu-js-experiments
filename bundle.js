@@ -19630,9 +19630,9 @@ module.exports = PromiseWorker
 
 /***/ }),
 
-/***/ "./node_modules/worker-plugin/dist/loader.js?name=0!./src/mastermindCpuWebWorker.js":
+/***/ "./node_modules/worker-plugin/dist/loader.js?name=0!./src/mastermindGpuWebWorker.js":
 /*!******************************************************************************************!*\
-  !*** ./node_modules/worker-plugin/dist/loader.js?name=0!./src/mastermindCpuWebWorker.js ***!
+  !*** ./node_modules/worker-plugin/dist/loader.js?name=0!./src/mastermindGpuWebWorker.js ***!
   \******************************************************************************************/
 /*! no static exports found */
 /***/ (function(module, exports, __webpack_require__) {
@@ -19641,9 +19641,9 @@ module.exports = __webpack_require__.p + "0.bundle.worker.js"
 
 /***/ }),
 
-/***/ "./node_modules/worker-plugin/dist/loader.js?name=1!./src/mastermindGpuWebWorker.js":
+/***/ "./node_modules/worker-plugin/dist/loader.js?name=1!./src/mastermindCpuWebWorker.js":
 /*!******************************************************************************************!*\
-  !*** ./node_modules/worker-plugin/dist/loader.js?name=1!./src/mastermindGpuWebWorker.js ***!
+  !*** ./node_modules/worker-plugin/dist/loader.js?name=1!./src/mastermindCpuWebWorker.js ***!
   \******************************************************************************************/
 /*! no static exports found */
 /***/ (function(module, exports, __webpack_require__) {
@@ -19858,18 +19858,18 @@ const solve = async (logger, secret, calculateNewGuess) => {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
-/* WEBPACK VAR INJECTION */(function(__webpack__worker__0) {/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "calculateNewGuessCpu", function() { return calculateNewGuessCpu; });
+/* WEBPACK VAR INJECTION */(function(__webpack__worker__1) {/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "calculateNewGuessCpu", function() { return calculateNewGuessCpu; });
 /* harmony import */ var promise_worker__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! promise-worker */ "./node_modules/promise-worker/index.js");
 /* harmony import */ var promise_worker__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(promise_worker__WEBPACK_IMPORTED_MODULE_0__);
 
 
-const webWorker = new Worker(__webpack__worker__0, undefined)
+const webWorker = new Worker(__webpack__worker__1, undefined)
 const webWorkerP = new promise_worker__WEBPACK_IMPORTED_MODULE_0___default.a(webWorker)
 
 const calculateNewGuessCpu = untried =>
   webWorkerP.postMessage({ type: 'calculateNewGuess', untried })
 
-/* WEBPACK VAR INJECTION */}.call(this, __webpack_require__(/*! ./node_modules/worker-plugin/dist/loader.js?name=0!./mastermindCpuWebWorker.js */ "./node_modules/worker-plugin/dist/loader.js?name=0!./src/mastermindCpuWebWorker.js")))
+/* WEBPACK VAR INJECTION */}.call(this, __webpack_require__(/*! ./node_modules/worker-plugin/dist/loader.js?name=1!./mastermindCpuWebWorker.js */ "./node_modules/worker-plugin/dist/loader.js?name=1!./src/mastermindCpuWebWorker.js")))
 
 /***/ }),
 
@@ -19882,18 +19882,18 @@ const calculateNewGuessCpu = untried =>
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
-/* WEBPACK VAR INJECTION */(function(__webpack__worker__1) {/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "calculateNewGuessGpu", function() { return calculateNewGuessGpu; });
+/* WEBPACK VAR INJECTION */(function(__webpack__worker__0) {/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "calculateNewGuessGpu", function() { return calculateNewGuessGpu; });
 /* harmony import */ var promise_worker__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! promise-worker */ "./node_modules/promise-worker/index.js");
 /* harmony import */ var promise_worker__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(promise_worker__WEBPACK_IMPORTED_MODULE_0__);
 
 
-const webWorker = new Worker(__webpack__worker__1, undefined)
+const webWorker = new Worker(__webpack__worker__0, undefined)
 const webWorkerP = new promise_worker__WEBPACK_IMPORTED_MODULE_0___default.a(webWorker)
 
 const calculateNewGuessGpu = untried =>
   webWorkerP.postMessage({ type: 'calculateNewGuess', untried })
 
-/* WEBPACK VAR INJECTION */}.call(this, __webpack_require__(/*! ./node_modules/worker-plugin/dist/loader.js?name=1!./mastermindGpuWebWorker.js */ "./node_modules/worker-plugin/dist/loader.js?name=1!./src/mastermindGpuWebWorker.js")))
+/* WEBPACK VAR INJECTION */}.call(this, __webpack_require__(/*! ./node_modules/worker-plugin/dist/loader.js?name=0!./mastermindGpuWebWorker.js */ "./node_modules/worker-plugin/dist/loader.js?name=0!./src/mastermindGpuWebWorker.js")))
 
 /***/ }),
 
