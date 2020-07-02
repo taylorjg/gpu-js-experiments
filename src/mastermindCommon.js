@@ -49,7 +49,7 @@ export const scoreToString = score =>
 
 export const INITIAL_GUESS = [P.R, P.R, P.G, P.G]
 
-export const generateRandomCode = () => {
+export const randomSecret = () => {
   const chooseRandomPeg = () => {
     const randomIndex = Math.floor((Math.random() * ALL_PEGS.length))
     return ALL_PEGS[randomIndex]
@@ -101,10 +101,12 @@ const recursiveSolveStep = async (logger, attempt, calculateNewGuess, untried, h
   return recursiveSolveStep(logger, attempt, calculateNewGuess, newUntried, newHistory)
 }
 
-export const solve = async (logger, attempt, calculateNewGuess) => {
+export const solve = async (logger, secret, calculateNewGuess) => {
+  logger(`secret: ${codeToString(secret)}`)
+  const attempt = guess => evaluateScore(secret, guess)
   const start = performance.now()
   const history = await recursiveSolveStep(logger, attempt, calculateNewGuess, ALL_CODES, [])
   const end = performance.now()
+  logger(`numAttempts: ${history.length}`)
   logger(`duration: ${(end - start).toFixed(2)}ms`)
-  return history
 }

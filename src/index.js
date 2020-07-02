@@ -1,12 +1,8 @@
 import { GPU } from 'gpu.js'
-import { generateRandomCode as randomSecret } from './mastermindCommon'
-import { mastermindCpu } from './mastermindCpu'
-import { mastermindGpu } from './mastermindGpu'
+import { randomSecret, solve } from './mastermindCommon'
+import { calculateNewGuessCpu } from './mastermindCpu'
+import { calculateNewGuessGpu } from './mastermindGpu'
 import * as U from './utils'
-
-const logErrors = logger => error => {
-  logger(error)
-}
 
 const onRun = async loggers => {
   runElement.disabled = true
@@ -15,8 +11,8 @@ const onRun = async loggers => {
     cpuOutputElement.innerText = ''
     gpuOutputElement.innerText = ''
     const secret = randomSecret()
-    const cpuPromise = mastermindCpu(secret, cpuLogger).catch(logErrors(cpuLogger))
-    const gpuPromise = mastermindGpu(secret, gpuLogger).catch(logErrors(gpuLogger))
+    const cpuPromise = solve(cpuLogger, secret, calculateNewGuessCpu).catch(cpuLogger)
+    const gpuPromise = solve(gpuLogger, secret, calculateNewGuessGpu).catch(gpuLogger)
     await Promise.all([cpuPromise, gpuPromise])
   } finally {
     runElement.disabled = false
