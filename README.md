@@ -1,12 +1,23 @@
 # Description
 
-I created a Mastermind web app using Vue.js (code repo [here](https://github.com/taylorjg/mastermind-svg-vue) and play it live [here](https://mastermind-svg-vue.herokuapp.com/)) including an [autosolve](https://mastermind-svg-vue.herokuapp.com?autosolve) mode which is an implementation of 
-[Donald Knuth's Five-guess algorithm](https://en.wikipedia.org/wiki/Mastermind_(board_game)#Worst_case:_Five-guess_algorithm). I used [Hamsters.js](https://gitlab.com/hordesolutions/Hamsters.js) to try to speed up the algorithm. The idea of this repo is to experiment with [gpu.js](http://gpu.rocks/) with a view to speeding up the implementation of the algorithm even further.
+Investigation into how fast we can solve Mastermind using [Donald Knuth's Five-guess algorithm](https://en.wikipedia.org/wiki/Mastermind_(board_game)#Worst_case:_Five-guess_algorithm) in JavaScript.
 
 # TODO
 
-* Run cpu/gpu solve on web workers
-* Make a nicer UI
+* [x] Use web workers to solve on CPU/GPU simultaneously
+
+# Timings
+
+In Chrome on my MacBook Pro, typcical timings are roughly:
+
+| Mode | Run | Duration |
+| ---- | --- | -- |
+| CPU | Any | 600ms |
+| GPU | First | 300ms |
+| GPU | Subsequent | 60ms |
+
+I think the first GPU run has to compile the kernel so it takes longer than subsequent runs.
+Other than that, it looks like the GPU mode runs about 10 times quicker than the CPU mode.
 
 # Browsers
 
@@ -44,3 +55,6 @@ http://localhost:8082/bundle.js:29283:75
 * [Donald Knuth's Five-guess algorithm](https://en.wikipedia.org/wiki/Mastermind_(board_game)#Worst_case:_Five-guess_algorithm)
 * [gpu.js - GPU Accelerated JavaScript](http://gpu.rocks/)
 * [Implementation of Five-guess algorithm in Swift/Metal](https://github.com/taylorjg/mastermind-swift)
+* [Mastermind web app using SVG and Vue.js](https://mastermind-svg-vue.herokuapp.com)
+  * [Autosolve mode (using a web worker)](https://mastermind-svg-vue.herokuapp.com?autosolve)
+  * [Code repo](https://github.com/taylorjg/mastermind-svg-vue)
