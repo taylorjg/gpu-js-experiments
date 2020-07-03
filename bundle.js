@@ -19695,7 +19695,7 @@ const sysOutputElement = document.getElementById('sys-output')
 const loggers = {
   cpuLogger: _utils__WEBPACK_IMPORTED_MODULE_4__["makeLogger"](cpuOutputElement),
   gpuLogger: _utils__WEBPACK_IMPORTED_MODULE_4__["makeLogger"](gpuOutputElement),
-  sysLogger: _utils__WEBPACK_IMPORTED_MODULE_4__["makeLogger"](sysOutputElement)
+  sysLogger: _utils__WEBPACK_IMPORTED_MODULE_4__["makeLoggerNoTimestamp"](sysOutputElement)
 }
 
 const runElement = document.getElementById('run')
@@ -19863,11 +19863,11 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var promise_worker__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(promise_worker__WEBPACK_IMPORTED_MODULE_0__);
 
 
-const webWorker = new Worker(__webpack__worker__0, undefined)
-const webWorkerP = new promise_worker__WEBPACK_IMPORTED_MODULE_0___default.a(webWorker)
+const worker = new Worker(__webpack__worker__0, undefined)
+const promiseWorker = new promise_worker__WEBPACK_IMPORTED_MODULE_0___default.a(worker)
 
 const calculateNewGuessCpu = untried =>
-  webWorkerP.postMessage({ type: 'calculateNewGuess', untried })
+  promiseWorker.postMessage({ type: 'calculateNewGuess', untried })
 
 /* WEBPACK VAR INJECTION */}.call(this, __webpack_require__(/*! ./node_modules/worker-plugin/dist/loader.js?name=0!./mastermindCpuWebWorker.js */ "./node_modules/worker-plugin/dist/loader.js?name=0!./src/mastermindCpuWebWorker.js")))
 
@@ -19887,11 +19887,11 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var promise_worker__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(promise_worker__WEBPACK_IMPORTED_MODULE_0__);
 
 
-const webWorker = new Worker(__webpack__worker__1, undefined)
-const webWorkerP = new promise_worker__WEBPACK_IMPORTED_MODULE_0___default.a(webWorker)
+const worker = new Worker(__webpack__worker__1, undefined)
+const promiseWorker = new promise_worker__WEBPACK_IMPORTED_MODULE_0___default.a(worker)
 
 const calculateNewGuessGpu = untried =>
-  webWorkerP.postMessage({ type: 'calculateNewGuess', untried })
+  promiseWorker.postMessage({ type: 'calculateNewGuess', untried })
 
 /* WEBPACK VAR INJECTION */}.call(this, __webpack_require__(/*! ./node_modules/worker-plugin/dist/loader.js?name=1!./mastermindGpuWebWorker.js */ "./node_modules/worker-plugin/dist/loader.js?name=1!./src/mastermindGpuWebWorker.js")))
 
@@ -19901,7 +19901,7 @@ const calculateNewGuessGpu = untried =>
 /*!**********************!*\
   !*** ./src/utils.js ***!
   \**********************/
-/*! exports provided: range, flatten, countWithPredicate, makeLogger, defer, deferFor */
+/*! exports provided: range, flatten, countWithPredicate, makeLogger, makeLoggerNoTimestamp, defer, deferFor */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -19910,6 +19910,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "flatten", function() { return flatten; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "countWithPredicate", function() { return countWithPredicate; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "makeLogger", function() { return makeLogger; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "makeLoggerNoTimestamp", function() { return makeLoggerNoTimestamp; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "defer", function() { return defer; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "deferFor", function() { return deferFor; });
 const range = n =>
@@ -19929,6 +19930,14 @@ const makeLogger = outputElement => message => {
     ? [existingText, timestampedMessage].join('\n')
     : timestampedMessage
   console.log(timestampedMessage)
+}
+
+const makeLoggerNoTimestamp = outputElement => message => {
+  const existingText = outputElement.innerText
+  outputElement.innerText = existingText
+    ? [existingText, message].join('\n')
+    : message
+  console.log(message)
 }
 
 const defer = thunk =>

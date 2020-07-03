@@ -365,7 +365,7 @@ promise_worker_register__WEBPACK_IMPORTED_MODULE_0___default()(processMessage)
 /*!**********************!*\
   !*** ./src/utils.js ***!
   \**********************/
-/*! exports provided: range, flatten, countWithPredicate, makeLogger, defer, deferFor */
+/*! exports provided: range, flatten, countWithPredicate, makeLogger, makeLoggerNoTimestamp, defer, deferFor */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -374,6 +374,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "flatten", function() { return flatten; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "countWithPredicate", function() { return countWithPredicate; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "makeLogger", function() { return makeLogger; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "makeLoggerNoTimestamp", function() { return makeLoggerNoTimestamp; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "defer", function() { return defer; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "deferFor", function() { return deferFor; });
 const range = n =>
@@ -393,6 +394,14 @@ const makeLogger = outputElement => message => {
     ? [existingText, timestampedMessage].join('\n')
     : timestampedMessage
   console.log(timestampedMessage)
+}
+
+const makeLoggerNoTimestamp = outputElement => message => {
+  const existingText = outputElement.innerText
+  outputElement.innerText = existingText
+    ? [existingText, message].join('\n')
+    : message
+  console.log(message)
 }
 
 const defer = thunk =>
