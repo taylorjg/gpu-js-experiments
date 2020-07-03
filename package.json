@@ -1,6 +1,6 @@
 {
   "name": "gpu-js-experiments",
-  "version": "0.0.13",
+  "version": "0.0.14",
   "description": "Playing around with gpu.js",
   "main": "index.js",
   "scripts": {

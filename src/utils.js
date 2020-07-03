@@ -17,6 +17,14 @@ export const makeLogger = outputElement => message => {
   console.log(timestampedMessage)
 }
 
+export const makeLoggerNoTimestamp = outputElement => message => {
+  const existingText = outputElement.innerText
+  outputElement.innerText = existingText
+    ? [existingText, message].join('\n')
+    : message
+  console.log(message)
+}
+
 export const defer = thunk =>
   deferFor(0, thunk)
 

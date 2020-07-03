@@ -26,7 +26,7 @@ const sysOutputElement = document.getElementById('sys-output')
 const loggers = {
   cpuLogger: U.makeLogger(cpuOutputElement),
   gpuLogger: U.makeLogger(gpuOutputElement),
-  sysLogger: U.makeLogger(sysOutputElement)
+  sysLogger: U.makeLoggerNoTimestamp(sysOutputElement)
 }
 
 const runElement = document.getElementById('run')

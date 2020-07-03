@@ -8,7 +8,7 @@
 </head>
 
 <body>
-  <div style="width: 90vw; margin-left: auto; margin-right: auto;">
+  <div style="width: 90vw; max-width: 40rem; margin-left: auto; margin-right: auto;">
     <div style="display: flex; justify-content: space-between;">
       <button id="run" style="margin-bottom: .5rem;">Run</button>
       <div style="text-align: right; font-size: small; font-style: italic;">
@@ -16,22 +16,21 @@
       </div>
     </div>
     <hr>
-    <div style="display: flex; align-items: flex-start;">
-      <div style="width: 4rem;">CPU:</div>
+    <div style="display: flex;">
+      <div style="width: 3rem;">CPU:</div>
       <pre id="cpu-output"
-        style="flex-grow: 1; margin: 0; height: 14rem; background-color: lightgrey; overflow-y: scroll;"></pre>
+        style="flex-grow: 1; margin: 0; height: 12rem; background-color: lightgrey; font-size: small; overflow-y: scroll;"></pre>
     </div>
     <hr>
-    <div style="display: flex; align-items: flex-start;">
-      <div style="width: 4rem;">GPU:</div>
+    <div style="display: flex;">
+      <div style="width: 3rem;">GPU:</div>
       <pre id="gpu-output"
-        style="flex-grow: 1; margin: 0; height: 14rem; background-color: lightgrey; overflow-y: scroll;"></pre>
+        style="flex-grow: 1; margin: 0; height: 12rem; background-color: lightgrey; font-size: small; overflow-y: scroll;"></pre>
     </div>
     <hr>
-    <div style="display: flex; align-items: flex-start;">
-      <div style="width: 4rem;">System:</div>
+    <div style="display: flex;">
       <pre id="sys-output"
-        style="flex-grow: 1; margin: 0; height: 4rem; background-color: lightgrey; overflow-y: scroll;"></pre>
+        style="flex-grow: 1; margin: 0; height: 4rem; background-color: lightgrey; font-size: small; overflow-y: scroll;"></pre>
     </div>
   </div>
 </body>

@@ -1,7 +1,7 @@
 import PromiseWorker from 'promise-worker'
 
-const webWorker = new Worker('./mastermindGpuWebWorker.js', { type: 'module' })
-const webWorkerP = new PromiseWorker(webWorker)
+const worker = new Worker('./mastermindGpuWebWorker.js', { type: 'module' })
+const promiseWorker = new PromiseWorker(worker)
 
 export const calculateNewGuessGpu = untried =>
-  webWorkerP.postMessage({ type: 'calculateNewGuess', untried })
+  promiseWorker.postMessage({ type: 'calculateNewGuess', untried })
