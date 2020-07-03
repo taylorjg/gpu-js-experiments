@@ -1,6 +1,6 @@
 # Description
 
-Investigation into how fast we can solve Mastermind using [Donald Knuth's Five-guess algorithm](https://en.wikipedia.org/wiki/Mastermind_(board_game)#Worst_case:_Five-guess_algorithm) in JavaScript.
+Experiment to see how fast we can solve Mastermind using [Donald Knuth's Five-guess algorithm](https://en.wikipedia.org/wiki/Mastermind_(board_game)#Worst_case:_Five-guess_algorithm) in JavaScript and [gpu.js](http://gpu.rocks/).
 
 # TODO
 
