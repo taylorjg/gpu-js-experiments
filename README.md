@@ -4,7 +4,7 @@ Experiment to see how fast we can solve Mastermind using [Donald Knuth's Five-gu
 
 # TODO
 
-* [x] Use web workers to solve on CPU/GPU simultaneously
+* [x] Use web workers to run CPU and GPU modes simultaneously
 
 # Timings
 
